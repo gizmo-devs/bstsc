@@ -33,9 +33,11 @@ def create_app(test_config=None):
     db.init_app(app)
     from . import auth
     app.register_blueprint(auth.bp)
-
     from . import competition
     app.register_blueprint(competition.bp)
+    from . import team
+    app.register_blueprint(team.bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app

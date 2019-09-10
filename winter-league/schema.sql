@@ -30,7 +30,7 @@ CREATE TABLE teamMembers (
 
 CREATE TABLE competitions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    competion_name TEXT NOT NULL,
+    competition_name TEXT NOT NULL,
     season TEXT NULL,
     rounds INTEGER NULL,
     round1_due DATE NULL,
@@ -56,12 +56,12 @@ CREATE TABLE competitions (
 CREATE TABLE compTeam (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_id INTEGER NULL,
-    competion_id INTEGER NULL
+    competition_id INTEGER NULL
 );
 
 CREATE TABLE scores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    competion_id INTEGER NOT NULL,
+    competition_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     round INTEGER NOT NULL,
     estimated INTEGER NULL,

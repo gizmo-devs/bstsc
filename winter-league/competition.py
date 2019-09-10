@@ -6,30 +6,71 @@ from werkzeug.exceptions import abort
 from .auth import login_required
 from .db import get_db
 
-bp = Blueprint('competition', __name__)
+bp = Blueprint('competition', __name__, )
+
 
 @bp.route('/')
 def index():
     db = get_db()
-    posts = db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' ORDER BY created DESC'
+    comps = db.execute(
+        'SELECT competition_name, season, rounds, round1_due'
+        ' FROM competitions'
     ).fetchall()
-    return render_template('postal/index.html', posts=posts)
+    users = db.execute('SELECT id, first_name, surname FROM user').fetchall()
+    return render_template('postal/index.html', competitions=comps, users=users)
+
 
 @bp.route('/create' , methods=('GET', 'POST'))
 def comp_create():
     if request.method == 'POST':
-        competion_name = request.form['competition_name']
+        print("You have attempted to create a competition")
+        competition_name = request.form['competition_name']
         season = request.form['season']
         rounds = request.form['rounds']
 
         db = get_db()
         db.execute(
-            'INSERT INTO competitions (competion_name, season, rounds) VALUES (?, ?, ?)',
-            (competion_name, season,rounds)
+            'INSERT INTO competitions (competition_name, season, rounds) VALUES (?, ?, ?)',
+            (competition_name, season, rounds)
         )
-        print("You have attempted to create a competition")
+        db.commit()
 
     return render_template('postal/create_comp.html')
+
+
+@bp.route('/edit/<int:id>' , methods=('GET', 'POST'))
+def comp_link():
+    if request.method == 'POST':
+        print("You have attempted to update a Competition")
+        competition_name = request.form['competition_name']
+        season = request.form['season']
+        rounds = request.form['rounds']
+
+        db = get_db()
+        db.execute(
+            'INSERT INTO compTeam(competition_name, season, rounds) VALUES (?, ?, ?)',
+            (competition_name, season, rounds)
+        )
+        db.commit()
+    #elif request.method == 'GET':
+
+    return render_template('postal/create_comp.html')
+
+
+@bp.route('/edit' , methods=('GET', 'POST'))
+def comp_edit():
+    if request.method == 'POST':
+        print("You have attempted to create a competition")
+        competition_name = request.form['competition_name']
+        season = request.form['season']
+        rounds = request.form['rounds']
+
+        db = get_db()
+        db.execute(
+            'INSERT INTO compTeam(competition_name, season, rounds) VALUES (?, ?, ?)',
+            (competition_name, season, rounds)
+        )
+        db.commit()
+
+    return render_template('postal/create_comp.html')
+

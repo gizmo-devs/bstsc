@@ -1,6 +1,8 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - Flaskr</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+<script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+
 <nav>
   <h1>Flaskr</h1>
   <ul>
@@ -22,3 +24,4 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </section>
+<script src="{{ url_for('static', filename='js/wizardry.js') }}"></script>

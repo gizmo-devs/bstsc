@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Manage Team{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('team.team_create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% for team in teams %}
+    <article class="comp">
+      <header>
+        <div>
+          <h2>{{ team['details']['team_name'] }} <small>{{team['details']['season']}}</small></h2>
+        </div>
+        <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link') }}">Link to Competition</a>
+      </header>
+      {% if team['details']['team_size'] %}
+        <div class="team">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Member</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in team['members'] %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td>{{user['first_name']}} {{user['surname']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
