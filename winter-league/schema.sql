@@ -12,8 +12,17 @@ CREATE TABLE user (
   first_name TEXT NOT NULL,
   surname TEXT NOT NULL,
   username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  --password TEXT NOT NULL
+  password TEXT
 );
+
+INSERT INTO user (first_name, surname, username) VALUES ('Craig', 'Attwood', 'craigattwood');
+INSERT INTO user (first_name, surname, username) VALUES ('Mike', 'Lemmon', 'mlemon');
+INSERT INTO user (first_name, surname, username) VALUES ('Dave', 'Lemmon', 'dlemon');
+INSERT INTO user (first_name, surname, username) VALUES ('Chris', 'Burrow', 'cburrow');
+INSERT INTO user (first_name, surname, username) VALUES ('Mog', 'Tompson', 'Mog_the_pog');
+INSERT INTO user (first_name, surname, username) VALUES ('Jack', 'Smith', 'Jsmith');
+INSERT INTO user (first_name, surname, username) VALUES ('Matt', 'Robinson', 'mRobinson');
 
 CREATE TABLE team (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,11 +31,21 @@ CREATE TABLE team (
     season TEXT NOT NULL
 );
 
+INSERT INTO team (team_name, team_size, season) VALUES ('Budleigh A Team', 3, '2019/20');
+INSERT INTO team (team_name, team_size, season) VALUES ('Budleigh B Team', 2, '2019/20');
+
 CREATE TABLE teamMembers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL
 );
+
+INSERT INTO teamMembers (user_id, team_id) VALUES (1,1);
+INSERT INTO teamMembers (user_id, team_id) VALUES (2,1);
+INSERT INTO teamMembers (user_id, team_id) VALUES (3,1);
+
+INSERT INTO teamMembers (user_id, team_id) VALUES (4,2);
+INSERT INTO teamMembers (user_id, team_id) VALUES (6,2);
 
 CREATE TABLE competitions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,11 +72,18 @@ CREATE TABLE competitions (
     round18_due DATE NULL
 );
 
+INSERT INTO competitions (competition_name, season, rounds) VALUES ('Winter League', '2019/20', 18);
+INSERT INTO competitions (competition_name, season, rounds) VALUES ('Winter League - B', '2019/20', 18);
+
 CREATE TABLE compTeam (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_id INTEGER NULL,
     competition_id INTEGER NULL
 );
+
+INSERT INTO compTeam (team_id, competition_id) VALUES(1,1);
+INSERT INTO compTeam (team_id, competition_id) VALUES(2,2);
+
 
 CREATE TABLE scores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,3 +94,8 @@ CREATE TABLE scores (
     result INTEGER NULL,
     completed DATE NOT NULL
 );
+
+
+INSERT INTO scores (competition_id, user_id, round, estimated, result, completed) VALUES (1, 1, 1, 100, 100, '2019-09-01');
+INSERT INTO scores (competition_id, user_id, round, estimated, result, completed) VALUES (1, 1, 2, 99, 100, '2019-09-07');
+INSERT INTO scores (competition_id, user_id, round, estimated, result, completed) VALUES (1, 1, 3, 99, 98, '2019-09-07');

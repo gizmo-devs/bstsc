@@ -52,7 +52,7 @@ def team_create():
         print("Creating Team")
         team_name = request.form['team_name']
         team_size = request.form['team_size']
-        season = request.form['season']
+        season = request.form.get('season')
 
         cursor = db.cursor()
         cursor.execute(

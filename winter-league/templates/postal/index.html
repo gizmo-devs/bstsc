@@ -3,41 +3,45 @@
 {% block header %}
   <h1>{% block title %}Competitions{% endblock %}</h1>
   {% if g.user %}
-    <a class="action" href="{{ url_for('competition.comp_create') }}">New</a>
+    <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>
   {% endif %}
 {% endblock %}
 
 {% block content %}
-  {% for competition in competitions %}
-    <article class="comp">
-      <header>
-        <div>
-          <h2>{{ competition['competition_name'] }} <small>{{competition['season']}}</small></h2>
-        </div>
-      </header>
-      {% if competition['rounds'] %}
-        <div class="rounds_and_results">
-          <table class="table">
-            <thead>
+
+  {% for competition in data.competitions %}
+  {% set num_of_rounds = competition.info.rounds %}
+  <div class="card mt-2">
+    <div class="card-header">
+      <h2 class="display-5">{{competition.info.name}} <small>{{competition.info.season}}</small></h2>
+      <span class="float-right"><a href="{{url_for('competition.comp_edit', id=competition.info.id)}}">edit</a></span>
+    </div>
+    <div class="card-body">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Name</th>
+            {% for round in range(competition.info.rounds) %}
+            <th>{{loop.index}}</th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+            {% for person in competition.Shooters %}
               <tr>
-                <th>#</th>
-                <th>score</th>
+                <td>{{person.name}}</td>
+
+                {% for round in range(num_of_rounds) %}
+                <td>{{ person.scores[round].est if person.scores[round] in person.scores else '' }}</td>
+                {% endfor %}
               </tr>
-            </thead>
-            <tbody>
-              {% for round in range(competition['rounds']) %}
-              <tr>
-                <td>{{ loop.index }}</td>
-                <td></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% endif %}
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+  {% else %}
+    No loop
   {% endfor %}
+
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block header %}
   <h1>{% block title %}Manage Team{% endblock %}</h1>
   {% if g.user %}
-    <a class="action" href="{{ url_for('team.team_create') }}">New</a>
+    <a class="action" href="{{ url_for('team.team_create') }}">New Team</a>
   {% endif %}
 {% endblock %}
 
@@ -14,7 +14,7 @@
         <div>
           <h2>{{ team['details']['team_name'] }} <small>{{team['details']['season']}}</small></h2>
         </div>
-        <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link') }}">Link to Competition</a>
+        <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link', id=1) }}">Link to Competition</a>
       </header>
       {% if team['details']['team_size'] %}
         <div class="team">
