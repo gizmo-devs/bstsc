@@ -74,34 +74,51 @@ def team_create():
     return render_template('postal/manage_team.html', users=users)
 
 @bp.route('/edit/<int:id>' , methods=('GET', 'POST'))
-def team_edit():
+def team_edit(id):
     db = get_db()
     users = db.execute('SELECT id, first_name, surname FROM user').fetchall()
     db.commit()
     if request.method == 'POST':
-        print("Creating Team")
+        print("Editing Team")
         team_name = request.form['team_name']
         team_size = request.form['team_size']
         season = request.form['season']
 
         cursor = db.cursor()
         cursor.execute(
-            'INSERT INTO team (compteam_name, team_size, season) VALUES (?, ?, ?)',
-            (team_name, team_size, season)
-        ).fetchall()
+            'UPDATE team'
+            ' SET team_name = ' + team_name +
+            ', team_size = ' + team_size +
+            ', season = ' + season +
+            ' WHERE id=' + str(id)
+        )
+        db.commit()
 
-        team_id = cursor.lastrowid
+        team_id = id
+        print("Deleting all members from team: "+ str(id))
+        cursor.execute(
+                'DELETE FROM teamMembers WHERE team_id=' + str(team_id)
+            )
+        db.commit()
 
         print("Assigning members to the team : " + str(team_id))
         for member in request.form.getlist("member_selection"):
-            #print member
+            print (member)
             db.execute(
                 'INSERT INTO teamMembers (user_id, team_id) VALUES (?, ?)',
                 (member, team_id)
             ).fetchall()
             db.commit()
-
-    return render_template('postal/manage_team.html', users=users)
+        return redirect(url_for('team.index'))
+    elif request.method == 'GET':
+        team_details = db.execute(
+            'SELECT user.id, user.first_name, user.surname, team.team_name, team.team_size, team.season'
+            ' FROM user'
+            ' join teamMembers ON user_id=user.id'
+            ' join team on teamMembers.team_id = team.id'
+            ' AND teamMembers.team_id=' + str(id)
+        ).fetchall()
+    return render_template('postal/edit_team.html', team_details=team_details, users=users)
 
 # @bp.route('/del')
 # def team_del():
@@ -128,3 +145,14 @@ def get_team(id):
         abort(403)
 
     return post
+
+@bp.route('/edit/<int:id>' , methods=('GET', 'POST'))
+@app.context_processor
+def my_utility_processor():
+    def remove_member(uid, tid):
+        db = get_db()
+        db.execute(
+                'DELETE FROM teamMembers WHERE user_id=? AND team_id=?', (uid, tid)
+            )
+        db.commit()
+        return

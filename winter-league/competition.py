@@ -68,13 +68,11 @@ def comp_link(id=None):
         season = request.form['season']
         rounds = request.form['rounds']
 
-
         db.execute(
             'INSERT INTO compTeam(competition_name, season, rounds) VALUES (?, ?, ?)',
             (competition_name, season, rounds)
         )
         db.commit()
-    #elif request.method == 'GET':
     elif request.method == 'GET':
         compdata = db.execute('SELECT * '
                               ' FROM competitions'
@@ -83,6 +81,7 @@ def comp_link(id=None):
                               ).fetchone()
         print (compdata)
     return render_template('postal/link_comp.html', data=compdata)
+
 
 
 @bp.route('/competition/edit/<int:id>' , methods=('GET', 'POST'))

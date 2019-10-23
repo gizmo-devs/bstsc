@@ -14,7 +14,8 @@
         <div>
           <h2>{{ team['details']['team_name'] }} <small>{{team['details']['season']}}</small></h2>
         </div>
-        <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link', id=1) }}">Link to Competition</a>
+        <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link', id=team.details.id) }}">Link to Competition</a>
+        <a class="btn btn-primary" role="button" href="{{ url_for('team.team_edit', id=team.details.id) }}">Update Team</a>
       </header>
       {% if team['details']['team_size'] %}
         <div class="team">

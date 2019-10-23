@@ -12,35 +12,37 @@
   <form method="post" id="team">
     <div class="form-group">
       <label for="team_name">Team Name</label>
-      <input type="team_name" class="form-control" name="team_name" id="team_name" required>
+      <input type="team_name" class="form-control" name="team_name" id="team_name" required value="{{team_details[0].team_name}}">
     </div>
     <div class="form-group">
       <label for="team_size">Team Size</label>
-      <input type="number" class="form-control" name="team_size" id="team_size" value="0" required>
+      <input type="number" class="form-control" name="team_size" id="team_size" required value="{{team_details[0].team_size}}">
     </div>
     <div class="form-group">
       <label for="season">Season</label>
         <select class="form-control member_selection" id="season" name="season">
           <option value="" selected disabled>Please Select</option>
-            <option value="2019/20">2019/20</option>
-            <option value="2020/21">2020/21</option>
+            <option value="2019/20" {{ 'Selected' if team_details[0].season == '2019/20' }} >2019/20</option>
+            <option value="2020/21" {{ 'Selected' if team_details[0].season == '2020/21' }} >2020/21</option>
         </select>
     </div>
     <!-- Members -->
+    {% for member in team_details %}
     <div id="members">
 		<div class="form-group">
 			<label for="Member">Member</label>
 			<select class="form-control member_selection" id="Member" name="member_selection">
 			  <option value="" selected disabled>Please Select</option>
               {% for user in users %}
-                <option value="{{user['id']|safe}}">{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>
+                <option value="{{user['id']|safe}}" {{ 'Selected' if user.id == member.id}} >{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>
               {% endfor %}
 			</select>
 		</div>
 	</div>
+      {% endfor %}
 	<button class="btn btn-primary" id="add_member" value="Add Member">Add Member</button>
 	<button class="btn btn-danger" id="remove_last" value="Remove Member">Remove Member</button>
-    <input class="btn btn-primary" type="submit" value="Create">
+    <input class="btn btn-primary" type="submit" value="Update">
   </form>
   <script>
     var new_member = '<div class="form-group"><label for="Member">Member</label><select class="form-control member_selection" name="member_selection"><option selected disabled>Please Select</option>
