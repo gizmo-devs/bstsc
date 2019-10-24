@@ -9,48 +9,97 @@
 
 
 {% block content %}
-  <form method="post" id="team">
-    <div class="form-group">
-      <label for="team_name">Team Name</label>
-      <input type="team_name" class="form-control" name="team_name" id="team_name" required value="{{team_details[0].team_name}}">
+  {% if team_details %}
+  <div class="card mt-2">
+    <div class="card-header">
+      <h2 class="display-5">Team Details</h2>
     </div>
-    <div class="form-group">
-      <label for="team_size">Team Size</label>
-      <input type="number" class="form-control" name="team_size" id="team_size" required value="{{team_details[0].team_size}}">
+    <form method="post" id="team">
+    <div class="card-body">
+        <div class="form-group">
+          <label for="team_name">Team Name</label>
+          <input type="team_name" class="form-control" name="team_name" id="team_name" required value="{{team_details[0].team_name}}">
+        </div>
+        <div class="form-group">
+          <label for="team_size">Team Size</label>
+          <input type="number" class="form-control" name="team_size" id="team_size" required value="{{team_details[0].team_size}}">
+        </div>
+        <div class="form-group">
+          <label for="season">Season</label>
+            <select class="form-control member_selection" id="season" name="season">
+              <option value="" selected disabled>Please Select</option>
+                <option value="2019/20" {{ 'Selected' if team_details[0].season == '2019/20' }} >2019/20</option>
+                <option value="2020/21" {{ 'Selected' if team_details[0].season == '2020/21' }} >2020/21</option>
+            </select>
+        </div>
     </div>
-    <div class="form-group">
-      <label for="season">Season</label>
-        <select class="form-control member_selection" id="season" name="season">
+    <div class="card-footer text-right">
+      <small class="text-muted">Be sure to save Team Details before updating members.</small><br>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </div>
+      </form>
+  </div>
+  <!-- Members -->
+  <div class="card mt-2 mb-2">
+    <div class="card-header">
+      <h2 class="display-5 float-left">Team Members</h2>
+      <button class="btn btn-success float-right" type="button" data-toggle="modal" data-target="#add_new_member" role="button">Add Member</button>
+    </div>
+    <div class="card-body">
+        {% for member in team_details %}
+        <div id="members">
+            <label for="Member">Member</label>
+            <div class="input-group">
+<!--                <select class="form-control member_selection" id="Member" name="member_selection">-->
+<!--                  <option value="" selected disabled>Please Select</option>-->
+<!--                  {% for user in users %}-->
+<!--                    <option value="{{user['id']|safe}}" {{ 'Selected' if user.id == member.id}} >{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>-->
+<!--                  {% endfor %}-->
+<!--                </select>-->
+              <input class="form-control" type="text" value="{{member.first_name}} {{member.surname}}" />
+                <div class="input-group-append">
+                    <a href="{{url_for('team.remove_member', uid=member.id, tid=team_details[0].team_id)}}" class="btn btn-danger">Remove</a>
+                </div>
+            </div>
+        </div>
+          {% endfor %}
+    </div>
+  </div>
+
+<!-- The Modal -->
+<div class="modal" id="add_new_member">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Add member to {{team_details[0].team_name}}</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <form method="post" action="{{url_for('team.add_member', tid=team_details[0].id )}}">
+      <div class="modal-body">
+        <input type="hidden" name="tid" value="{{team_details[0].id}}"/>
+        <select class="form-control member_selection" id="Member" name="member_selection">
           <option value="" selected disabled>Please Select</option>
-            <option value="2019/20" {{ 'Selected' if team_details[0].season == '2019/20' }} >2019/20</option>
-            <option value="2020/21" {{ 'Selected' if team_details[0].season == '2020/21' }} >2020/21</option>
+          {% for user in users %}
+            <option value="{{user['id']|safe}}">{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>
+          {% endfor %}
         </select>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Add Member</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+      </form>
     </div>
-    <!-- Members -->
-    {% for member in team_details %}
-    <div id="members">
-		<div class="form-group">
-			<label for="Member">Member</label>
-			<select class="form-control member_selection" id="Member" name="member_selection">
-			  <option value="" selected disabled>Please Select</option>
-              {% for user in users %}
-                <option value="{{user['id']|safe}}" {{ 'Selected' if user.id == member.id}} >{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>
-              {% endfor %}
-			</select>
-		</div>
-	</div>
-      {% endfor %}
-	<button class="btn btn-primary" id="add_member" value="Add Member">Add Member</button>
-	<button class="btn btn-danger" id="remove_last" value="Remove Member">Remove Member</button>
-    <input class="btn btn-primary" type="submit" value="Update">
-  </form>
-  <script>
-    var new_member = '<div class="form-group"><label for="Member">Member</label><select class="form-control member_selection" name="member_selection"><option selected disabled>Please Select</option>
-      {%- for user in users -%}
-        <option value="{{user['id']|safe}}">{{- user['first_name']|safe}} {{user['surname']|safe-}}</option>
-      {%- endfor -%}
-      </select></div>'
+  </div>
+</div>
+{% else %}
+  No Details provided
+{% endif %}
 
-
-  </script>
 {% endblock %}

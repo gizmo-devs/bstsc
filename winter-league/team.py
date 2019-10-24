@@ -87,32 +87,16 @@ def team_edit(id):
         cursor = db.cursor()
         cursor.execute(
             'UPDATE team'
-            ' SET team_name = ' + team_name +
-            ', team_size = ' + team_size +
-            ', season = ' + season +
-            ' WHERE id=' + str(id)
+            ' SET team_name = ?'
+            ', team_size = ?'
+            ', season = ?'
+            ' WHERE id=?', (team_name, team_size, season, id)
         )
         db.commit()
-
-        team_id = id
-        print("Deleting all members from team: "+ str(id))
-        cursor.execute(
-                'DELETE FROM teamMembers WHERE team_id=' + str(team_id)
-            )
-        db.commit()
-
-        print("Assigning members to the team : " + str(team_id))
-        for member in request.form.getlist("member_selection"):
-            print (member)
-            db.execute(
-                'INSERT INTO teamMembers (user_id, team_id) VALUES (?, ?)',
-                (member, team_id)
-            ).fetchall()
-            db.commit()
         return redirect(url_for('team.index'))
     elif request.method == 'GET':
         team_details = db.execute(
-            'SELECT user.id, user.first_name, user.surname, team.team_name, team.team_size, team.season'
+            'SELECT user.id, user.first_name, user.surname, team.team_name, team.team_size, team.season, team.id as team_id'
             ' FROM user'
             ' join teamMembers ON user_id=user.id'
             ' join team on teamMembers.team_id = team.id'
@@ -146,13 +130,23 @@ def get_team(id):
 
     return post
 
-@bp.route('/edit/<int:id>' , methods=('GET', 'POST'))
-@app.context_processor
-def my_utility_processor():
-    def remove_member(uid, tid):
-        db = get_db()
-        db.execute(
-                'DELETE FROM teamMembers WHERE user_id=? AND team_id=?', (uid, tid)
-            )
-        db.commit()
-        return
+
+@bp.route('/edit/<int:tid>/remove_member/<int:uid>', methods=('GET', 'POST'))
+def remove_member(uid, tid):
+    db = get_db()
+    db.execute(
+            'DELETE FROM teamMembers WHERE user_id=? AND team_id=?', (uid, tid)
+        )
+    db.commit()
+    return redirect(url_for('team.team_edit', id=tid))
+
+
+@bp.route('/edit/<int:tid>/add_member', methods=('GET', 'POST'))
+def add_member(tid):
+    uid = request.form['member_selection']
+    db = get_db()
+    db.execute(
+            'INSERT INTO teamMembers (user_id, team_id) VALUES(?, ?)', (uid, tid)
+        )
+    db.commit()
+    return redirect(url_for('team.team_edit', id=tid))
