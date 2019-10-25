@@ -4,7 +4,7 @@ from flask import (
 from werkzeug.exceptions import abort
 import json
 from .auth import login_required
-from .db import get_db
+from .db import get_db, query_db
 
 bp = Blueprint('team', __name__, url_prefix='/teams')
 
@@ -158,16 +158,31 @@ def add_member(tid):
 
 
 def get_members(team_id):
-    db = get_db()
-    team = db.execute(
-        'SELECT '
-        'teamMembers. *, user.first_name, user.surname '
-        'FROM '
-        'teamMembers '
-        'JOIN user'
-        '    ON teamMembers.user_id = user.id '
-        'WHERE team_id = ?', str(team_id)
-    ).fetchall()
-    tpl = team
-    print (tpl, type(tpl))
-    return (tpl)
+    query = 'SELECT '\
+    'teamMembers. *, user.first_name, user.surname '\
+    'FROM '\
+    'teamMembers '\
+    'JOIN user'\
+    '    ON teamMembers.user_id = user.id '\
+    'WHERE team_id = ?'
+
+    return query_db(query, str(team_id))
+
+
+    # db = get_db()
+    # team = db.execute(
+    #     'SELECT '
+    #     'teamMembers. *, user.first_name, user.surname '
+    #     'FROM '
+    #     'teamMembers '
+    #     'JOIN user'
+    #     '    ON teamMembers.user_id = user.id '
+    #     'WHERE team_id = ?', str(team_id)
+    # ).fetchall()
+    #
+    # cur = get_db().execute(query, args)
+    # rv = cur.fetchall()
+    # cur.close()
+    # tpl = team
+    # print (tpl, type(tpl))
+    # return (tpl)

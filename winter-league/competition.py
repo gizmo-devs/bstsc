@@ -32,12 +32,13 @@ def index():
     #     'WHERE teamMembers.team_id = 1'
     # ).fetchall()
     # users = db.execute('SELECT id, first_name, surname FROM user').fetchall()
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, 'data_files', 'comp_data.json')
-    print(os.path.exists(json_url))
-    with open(json_url, 'r') as f:
-        comp_data = json.load(f)
-    print (type(comp_data))
+    # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    # json_url = os.path.join(SITE_ROOT, 'data_files', 'comp_data.json')
+    # print(os.path.exists(json_url))
+    # with open(json_url, 'r') as f:
+    #     comp_data = json.load(f)
+    # print (type(comp_data))
+    comp_data=collect_competion_data()
     return render_template('postal/index.html', data=comp_data) #, competitions=comps, users=users)
 
 
@@ -128,31 +129,39 @@ def comp_edit(id=None):
 @bp.route("/test")
 def collect_competion_data():
     db = get_db()
-    dict = {}
-    due_date_list = []
+    competitions = {}
     info = db.execute(
         'SELECT * from competitions'
     ).fetchall()
+    comp_list = []
     #dict['info'] = info
     for comp in info:
+        dict = {}
+        dict['info']={}
         due_date_list=[]
         for col in comp.keys():
             i = comp.keys().index(col)
             if col == "id":
-                dict["id"] = comp[i]
+                dict['info']["id"] = comp[i]
             if col == "competition_name":
-                dict["name"] = comp[i]
+                dict['info']["name"] = comp[i]
             if col == "season":
-                dict['season'] = comp[i]
+                dict['info']['season'] = comp[i]
+            if col == "rounds":
+                dict['info']['rounds'] = comp[i]
             if col.endswith("_due"):
                 if comp[i] is not None: due_date_list += [comp[i]]
         if len(due_date_list) > 0:
             dict['round_due_dates'] = due_date_list
         print (due_date_list)
+        dict['team_results'] = collect_scores(comp['id'])
+        comp_list += [dict]
+        del dict
+    competitions.update({'competitions': comp_list})
 
-    print(dict)
+    print(comp_list)
 
-    return dict
+    return competitions
 
 @bp.route("/test/compdata")
 def collect_competitors_data():
@@ -206,30 +215,40 @@ def collect_competitors_data():
 
 
 @bp.route("/test/user_scores")
-def collect_scores():
-    # comp_id and user_id are params
-    comp_id, user_id = 1, 1
-    print (team.get_members(1))
-    db = get_db()
-    shooter_results = db.execute(
-        'SELECT competitions.id '
-        ', compTeam.team_id '
-        ', teamMembers.user_id'
-        ', user.first_name'
-        ', user.surname'
-        ', scores.round'
-        ', scores.estimated'
-        ', scores.result'
-        ' FROM competitions'
-        ' join compTeam on competitions.id = compTeam.competition_id'
-        ' join teamMembers on compTeam.team_id = teamMembers.team_id'
-        ' join user on teamMembers.user_id = user.id'
-        ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-        ' WHERE scores.competition_id=?' 
-        ' AND teamMembers.user_id = ?', (comp_id, user_id)
-    ).fetchall()
-    scores = []
-    for row in shooter_results:
-        scores += [{ 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result']}]
-    print (scores)
-    return scores
+def collect_scores(comp_id):
+    # comp_id are params
+    team_results = []
+    for member in team.get_members(comp_id):
+        member_results = {}
+        print(member)
+        member_id = member['user_id']
+        member_results['user_id'] = member_id
+        member_results['name'] = member['first_name'] + ' ' + member['surname']
+        db = get_db()
+        shooter_results = db.execute(
+            'SELECT competitions.id '
+            ', compTeam.team_id '
+            ', teamMembers.user_id'
+            ', user.first_name'
+            ', user.surname'
+            ', scores.id as score_id'
+            ', scores.round'
+            ', scores.estimated'
+            ', scores.result'
+            ' FROM competitions'
+            ' join compTeam on competitions.id = compTeam.competition_id'
+            ' join teamMembers on compTeam.team_id = teamMembers.team_id'
+            ' join user on teamMembers.user_id = user.id'
+            ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
+            ' WHERE scores.competition_id=?' 
+            ' AND teamMembers.user_id = ?', (comp_id, member_id)
+        ).fetchall()
+        #print(shooter_results)
+        scores = []
+        for row in shooter_results:
+            scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result']}]
+        member_results['scores'] = scores
+        # print (member_results)
+        team_results += [member_results]
+    print team_results
+    return team_results

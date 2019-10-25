@@ -1,4 +1,12 @@
-//$(document).ready(function(){
+$(document).ready(function(){
+    $('.record').click(function() {
+        $('#shooter_name').val($(this).attr('data-name'));
+        if ($(this).attr('data-score-id')) {
+            alert($(this).attr('data-shot-id'));
+        }
+        $("#add_score").modal('show')
+     });
+
 //	//new_member = '<div class="form-group"><label for="Member">Member</label><select class="form-control member_selection" ><option selected disabled>Please Select</option><option>Craig</option><option>Mike</option><option>Dave</option></select></div>'
 //
 //	$("#add_member").on({
@@ -33,4 +41,4 @@
 //		});
 //		$("#team_size").val(n)
 //	}
-//});
+});
