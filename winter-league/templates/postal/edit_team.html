@@ -47,6 +47,7 @@
     </div>
     <div class="card-body">
         {% for member in team_details %}
+        {% if member.id %}
         <div id="members">
             <label for="Member">Member</label>
             <div class="input-group">
@@ -62,7 +63,8 @@
                 </div>
             </div>
         </div>
-          {% endfor %}
+        {% endif %}
+        {% endfor %}
     </div>
   </div>
 
@@ -78,7 +80,7 @@
       </div>
 
       <!-- Modal body -->
-      <form method="post" action="{{url_for('team.add_member', tid=team_details[0].id )}}">
+      <form method="post" action="{{url_for('team.add_member', tid=team_details[0].team_id )}}">
       <div class="modal-body">
         <input type="hidden" name="tid" value="{{team_details[0].id}}"/>
         <select class="form-control member_selection" id="Member" name="member_selection">

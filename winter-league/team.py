@@ -43,7 +43,7 @@ def index():
     return render_template('postal/teams.html', teams=teamData)
 
 
-@bp.route('/create' , methods=('GET', 'POST'))
+@bp.route('/create', methods=('GET', 'POST'))
 def team_create():
     db = get_db()
     users = db.execute('SELECT id, first_name, surname FROM user').fetchall()
@@ -58,20 +58,14 @@ def team_create():
         cursor.execute(
             'INSERT INTO team (team_name, team_size, season) VALUES (?, ?, ?)',
             (team_name, team_size, season)
-        ).fetchall()
+        )
+        db.commit()
 
         team_id = cursor.lastrowid
+        print("new team id", team_id)
+        return redirect(url_for('team.team_edit', id=team_id))
 
-        print("Assigning members to the team : " + str(team_id))
-        for member in request.form.getlist("member_selection"):
-            #print member
-            db.execute(
-                'INSERT INTO teamMembers (user_id, team_id) VALUES (?, ?)',
-                (member, team_id)
-            ).fetchall()
-            db.commit()
-
-    return render_template('postal/manage_team.html', users=users)
+    return render_template('postal/create_team.html', users=users)
 
 @bp.route('/edit/<int:id>' , methods=('GET', 'POST'))
 def team_edit(id):
@@ -96,11 +90,22 @@ def team_edit(id):
         return redirect(url_for('team.index'))
     elif request.method == 'GET':
         team_details = db.execute(
-            'SELECT user.id, user.first_name, user.surname, team.team_name, team.team_size, team.season, team.id as team_id'
-            ' FROM user'
-            ' join teamMembers ON user_id=user.id'
-            ' join team on teamMembers.team_id = team.id'
-            ' AND teamMembers.team_id=' + str(id)
+            'SELECT '
+            'team.id as team_id'
+            ', team.team_name'
+            ', team.team_size'
+            ', team.season, '
+            'teamMembers.user_id'
+            ', teamMembers.team_id'
+            ', user.id'
+            ', user.first_name'
+            ', user.surname '
+            'FROM team'
+            ' left join teamMembers '
+            ' on team.id = teamMembers.team_id'
+            ' left join user' 
+            ' on teamMembers.user_id = user.id'
+            ' WHERE team.id =' + str(id)
         ).fetchall()
     return render_template('postal/edit_team.html', team_details=team_details, users=users)
 
@@ -150,3 +155,19 @@ def add_member(tid):
         )
     db.commit()
     return redirect(url_for('team.team_edit', id=tid))
+
+
+def get_members(team_id):
+    db = get_db()
+    team = db.execute(
+        'SELECT '
+        'teamMembers. *, user.first_name, user.surname '
+        'FROM '
+        'teamMembers '
+        'JOIN user'
+        '    ON teamMembers.user_id = user.id '
+        'WHERE team_id = ?', str(team_id)
+    ).fetchall()
+    tpl = team
+    print (tpl, type(tpl))
+    return (tpl)

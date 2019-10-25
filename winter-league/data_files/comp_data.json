@@ -5,10 +5,10 @@
       "name": "winter-league",
       "rounds": 18,
       "season": "2019/20",
-      "round_due_dates": {
-        "1" : "12/10/2019",
-        "2" : "19/10/2019"
-      }
+      "round_due_dates": [
+        "12/10/2019",
+        "19/10/2019"
+      ]
     },
     "Shooters": [
       {
@@ -24,6 +24,12 @@
             "round" : 2,
             "est": 99,
             "actual" : 98,
+            "date_shot" : "18/10/2019"
+          },
+          {
+            "round" : 3,
+            "est": 99,
+            "actual" : 100,
             "date_shot" : "18/10/2019"
           }
         ]
