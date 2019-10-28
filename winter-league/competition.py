@@ -217,6 +217,7 @@ def collect_competitors_data():
 @bp.route("/test/user_scores")
 def collect_scores(comp_id):
     # comp_id are params
+    #comp_id =1
     team_results = []
     for member in team.get_members(comp_id):
         member_results = {}

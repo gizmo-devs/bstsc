@@ -13,11 +13,11 @@
   {% set num_of_rounds = competition.info.rounds %}
   <div class="card mt-2">
     <div class="card-header">
-      <h2 class="display-5">{{competition.info.name}} <small>{{competition.info.season}}</small></h2>
-      <span class="float-right"><a href="{{url_for('competition.comp_edit', id=competition.info.id)}}">edit</a></span>
+      <h2 class="display-5 float-left">{{competition.info.name}} <small>{{competition.info.season}}</small></h2>
+      <span class="float-right"><a class="btn btn-info float-right" href="{{url_for('competition.comp_edit', id=competition.info.id)}}">edit</a></span>
     </div>
     <div class="card-body">
-        <table class="table table-responsive table-bordered">
+        <table class="table table-responsive table-bordered results">
           <thead>
           <tr>
             <th>Name</th>
@@ -64,14 +64,17 @@
       <!-- Modal body -->
       <form id="score_form" method="post" action="{{url_for('competition.result_save')}}">
       <div class="modal-body">
-        <label for="score_id">Score ID:</label>
-        <input class="form-control" type="text" name="score_id" id="score_id" value=""/>
-        <label for="competition_id">Competition ID:</label>
-        <input class="form-control" type="text" name="competition_id" id="competition_id" value=""/>
-        <label for="user_id">User ID:</label>
-        <input class="form-control" type="text" name="user_id" id="user_id" value=""/>
-        <label for="round">Round #:</label>
-        <input class="form-control" type="text" name="round" id="round" value=""/>
+        <a href="#form_details" data-toggle="collapse" class="float-right">More</a>
+        <div id="form_details" class="collapse">
+          <label for="score_id">Score ID:</label>
+          <input class="form-control" type="text" name="score_id" id="score_id" value=""/>
+          <label for="competition_id">Competition ID:</label>
+          <input class="form-control" type="text" name="competition_id" id="competition_id" value=""/>
+          <label for="user_id">User ID:</label>
+          <input class="form-control" type="text" name="user_id" id="user_id" value=""/>
+          <label for="round">Round #:</label>
+          <input class="form-control" type="text" name="round" id="round" value=""/>
+        </div>
         <div class="form-group">
           <label for="shooter_name">Shooter Name:</label>
           <input class="form-control" type="text" name="shooter_name" id="shooter_name" value=""/>
