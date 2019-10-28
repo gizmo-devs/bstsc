@@ -1,11 +1,55 @@
 $(document).ready(function(){
     $('.record').click(function() {
-        $('#shooter_name').val($(this).attr('data-name'));
-        if ($(this).attr('data-score-id')) {
-            alert($(this).attr('data-shot-id'));
+        clear_score_form();
+        var score_id = $(this).attr('data-shot-id').toString();
+        var shooter_name  = $(this).attr('data-name');
+        $('#round_header_num').text($(this).attr('data-round'));
+        console.log(score_id)
+        if (score_id!=0) {
+            //alert($(this).attr('data-shot-id'));
+            $.get("/round_result/" + score_id, function(data) {
+                console.log(data);
+                var round = data.round;
+                $('#score_id').val(score_id);
+                $('#competition_id').val(data.competition_id);
+                $('#user_id').val(data.user_id);
+                $('#shooter_name').val(shooter_name);
+                $('#estimated').val(data.estimated);
+                $('#round').val(data.round);
+                $('#actual').val(data.result);
+                $('#date_shot').val(date_to_yyyy_mm_dd(data.completed));
+            });
+        } else {
+            var u_id = $(this).attr('data-user-id');
+            var c_id = $(this).attr('data-comp-id');
+            var round = $(this).attr('data-round');
+            $('#competition_id').val(c_id);
+            $('#user_id').val(u_id);
+            $('#shooter_name').val(shooter_name);
+            $('#estimated').val(0);
+            $('#actual').val(0)
+            $('#round').val(round);
+            //$('#date_shot').val();
+            //$('#shooter_name').val(shooter_name);
         }
+
         $("#add_score").modal('show')
+
      });
+
+    function clear_score_form() {
+        $('#score_form').trigger('reset');
+        return;
+    }
+
+    function date_to_yyyy_mm_dd(date){
+        var d = new Date(date)
+        y = d.getFullYear();
+        m = ("0" + (d.getMonth() + 1)).slice(-2);
+        d = ("0" + d.getDate()).slice(-2);
+
+        return y + "-" + m + "-" + d
+    }
 
 //	//new_member = '<div class="form-group"><label for="Member">Member</label><select class="form-control member_selection" ><option selected disabled>Please Select</option><option>Craig</option><option>Mike</option><option>Dave</option></select></div>'
 //

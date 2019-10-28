@@ -5,7 +5,7 @@ import os, json
 from werkzeug.exceptions import abort
 
 from .auth import login_required
-from .db import get_db
+from .db import get_db, query_db, make_dicts
 import team
 
 bp = Blueprint('competition', __name__, )
@@ -252,3 +252,51 @@ def collect_scores(comp_id):
         team_results += [member_results]
     print team_results
     return team_results
+
+@bp.route("/round_result/save", methods=["POST"])
+def result_save():
+    if request.method == 'POST':
+        db = get_db()
+        print('you have tried to save a result')
+        score_id = request.form['score_id']
+        comp_id = request.form['competition_id']
+        user_id = request.form['user_id']
+
+        est = request.form['estimated']
+        res = request.form['actual']
+        completed = request.form['date_shot']
+        round = request.form['round']
+        if request.form['score_id'] in [None, "", 0]:
+            sql = "INSERT INTO scores (user_id, competition_id, completed, estimated, result, round) VALUES (?,?,?,?,?,?)"
+            params = (user_id, comp_id, completed, est, res, round)
+        else:
+            sql = "UPDATE scores SET user_id=?, competition_id=?, completed=?, estimated=?, result=?, round=? WHERE id=?"
+            params = (user_id, comp_id, completed, est, res, round, score_id)
+
+
+        print(sql, params)
+        db.execute(sql, params)
+        db.commit()
+
+        return redirect(url_for('competition.index'))
+
+@bp.route("/round_result/<int:id>", methods=['GET'])
+def result(id=0):
+    if request.method == 'GET':
+        print(id)
+        record_data = query_db(
+            'SELECT user_id, competition_id, completed, estimated, result, round '
+            'FROM scores '
+            'WHERE id = ?', str(id), one=True
+        )
+        if record_data is not None:
+            print (record_data, type(record_data))
+            res_dict = {
+                "user_id": record_data['user_id'],
+                "competition_id": record_data['competition_id'],
+                "completed": record_data['completed'],
+                "estimated": record_data['estimated'],
+                "result": record_data['result'],
+                "round": record_data['round']
+            }
+        return res_dict
