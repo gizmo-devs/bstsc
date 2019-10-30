@@ -144,7 +144,7 @@ def collect_competion_data():
         if len(due_date_list) > 0:
             dict['round_due_dates'] = due_date_list
         print (due_date_list)
-        dict['team_results'] = collect_scores(comp['id'])
+        dict['teams'] = collect_scores(comp['id'])
         comp_list += [dict]
         del dict
     competitions.update({'competitions': comp_list})
@@ -196,45 +196,100 @@ def collect_competitors_data():
     return "done"
 
 
+def get_competition_teams(comp_id):
+    teams_in_comp = query_db(
+        'SELECT team_id, team_name from compTeam '
+        ' JOIN team ON team.id = compTeam.team_id'
+        ' WHERE compTeam.competition_id=?', str(comp_id)
+    )
+    return teams_in_comp
+
 @bp.route("/test/user_scores")
 def collect_scores(comp_id):
     # comp_id are params
     #comp_id =1
-    team_results = []
-    for member in team.get_members(comp_id):
-        member_results = {}
-        print(member)
-        member_id = member['user_id']
-        member_results['user_id'] = member_id
-        member_results['name'] = member['first_name'] + ' ' + member['surname']
-        db = get_db()
-        shooter_results = db.execute(
-            'SELECT competitions.id '
-            ', compTeam.team_id '
-            ', teamMembers.user_id'
-            ', user.first_name'
-            ', user.surname'
-            ', scores.id as score_id'
-            ', scores.round'
-            ', scores.estimated'
-            ', scores.result'
-            ' FROM competitions'
-            ' join compTeam on competitions.id = compTeam.competition_id'
-            ' join teamMembers on compTeam.team_id = teamMembers.team_id'
-            ' join user on teamMembers.user_id = user.id'
-            ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-            ' WHERE scores.competition_id=?' 
-            ' AND teamMembers.user_id = ?', (comp_id, member_id)
-        ).fetchall()
-        #print(shooter_results)
-        scores = []
-        for row in shooter_results:
-            scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result']}]
-        member_results['scores'] = scores
-        # print (member_results)
-        team_results += [member_results]
-    print (team_results)
-    return team_results
+    comp_results = []
+    for t in get_competition_teams(comp_id):
+        print("Team ID", t)
+        current_team = {}
+        current_team.update({'team_id': t['team_id'], "team_name": t['team_name']})
+        team_results = []
+        for team_member in team.get_members(t['team_id']):
+            print(team_member)
+            member_results = {}
+            member_results['user_id'] = team_member['user_id']
+            member_results['name'] = team_member['first_name'] + ' ' + team_member['surname']
+            shooter_results = get_compeitors_scores(comp_id, team_member['user_id'])
+
+            scores = []
+            for row in shooter_results:
+                scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result'] }]
+            # print (scores)
+            member_results['scores'] = scores
+            team_results += [member_results]
+        current_team["team_name"] = team_results
+        print (team_results)
+        comp_results += current_team
+    print("NEXT TEAM")
+    return comp_results
+
+    # for member in team.get_members(comp_id):
+    #     member_results = {}
+    #     print(member)
+    #     member_id = member['user_id']
+    #     member_results['user_id'] = member_id
+    #     member_results['name'] = member['first_name'] + ' ' + member['surname']
+    #     db = get_db()
+    #     shooter_results = db.execute(
+    #         'SELECT competitions.id '
+    #         ', compTeam.team_id '
+    #         ', teamMembers.user_id'
+    #         ', user.first_name'
+    #         ', user.surname'
+    #         ', scores.id as score_id'
+    #         ', scores.round'
+    #         ', scores.estimated'
+    #         ', scores.result'
+    #         ' FROM competitions'
+    #         ' join compTeam on competitions.id = compTeam.competition_id'
+    #         ' join teamMembers on compTeam.team_id = teamMembers.team_id'
+    #         ' join user on teamMembers.user_id = user.id'
+    #         ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
+    #         ' WHERE scores.competition_id=?'
+    #         ' AND teamMembers.user_id = ?', (comp_id, member_id)
+    #     ).fetchall()
+    #     #print(shooter_results)
+    #     scores = []
+    #     for row in shooter_results:
+    #         scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result']}]
+    #     member_results['scores'] = scores
+    #     # print (member_results)
+    #     team_results += [member_results]
+    # print (team_results)
+    # return team_results
+
+
+def get_compeitors_scores(comp_id, user_id):
+    user_results = query_db(
+        'SELECT competitions.id as comp_id'
+        ' , compTeam.team_id as team_id'
+        ' , teamMembers.user_id'
+        ' , scores.id as score_id'
+        ' , scores.round'
+        ' , scores.estimated'
+        ' , scores.result'
+        ' FROM competitions'
+        ' join compTeam on competitions.id = compTeam.competition_id'
+        ' join teamMembers on compTeam.team_id = teamMembers.team_id'
+        ' join user on teamMembers.user_id = user.id'
+        ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
+        ' WHERE scores.competition_id=?'
+        ' AND teamMembers.user_id = ?', [comp_id, user_id]
+    )
+    return user_results
+
+#def get_team_scores(comp_id, team_id):
+
 
 @bp.route("/round_result/save", methods=["POST"])
 def result_save():
@@ -270,7 +325,7 @@ def result(id=0):
         record_data = query_db(
             'SELECT user_id, competition_id, completed, estimated, result, round '
             'FROM scores '
-            'WHERE id = ?', str(id), one=True
+            'WHERE id = ?', [str(id)], one=True
         )
         if record_data is not None:
             print (record_data, type(record_data))

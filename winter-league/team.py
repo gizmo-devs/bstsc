@@ -141,7 +141,7 @@ def get_team(id):
 def link_to_comp(team_id):
     if request.method == 'POST':
         print("You have tried to link a competiton")
-        comp_id = request.form['competiton_id']
+        comp_id = request.form['linked_comp']
         db = get_db()
         db.execute(
             'INSERT INTO compTeam (team_id, competition_id) VALUES (?,?)', (str(team_id), str(comp_id))
@@ -184,9 +184,8 @@ def add_member(tid):
 
 def get_members(team_id):
     query = 'SELECT '\
-    'teamMembers. *, user.first_name, user.surname '\
-    'FROM '\
-    'teamMembers '\
+    'teamMembers.*, user.first_name, user.surname '\
+    'FROM teamMembers '\
     'JOIN user'\
     '    ON teamMembers.user_id = user.id '\
     'WHERE team_id = ?'
