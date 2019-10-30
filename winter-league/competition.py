@@ -5,7 +5,7 @@ import os, json
 from werkzeug.exceptions import abort
 
 from .auth import login_required
-from .db import get_db, query_db, make_dicts
+from .db import get_db, query_db
 import team
 
 bp = Blueprint('competition', __name__, )
@@ -13,33 +13,14 @@ bp = Blueprint('competition', __name__, )
 
 @bp.route('/')
 def index():
-    # db = get_db()
-    # comps = db.execute(
-    #     'SELECT '
-    #         'teamMembers.team_id, '
-    #         'user.first_name, '
-    #         'user.surname, '
-    #         'compTeam.competition_id, '
-    #         'scores.round, '
-    #         'scores.estimated, '
-    #         'scores.completed, '
-    #         'competitions.* '
-    #     'FROM teamMembers '
-    #     'JOIN user ON (teamMembers.user_id = user.id) '
-    #     'join compTeam On (compTeam.team_id = teamMembers.team_id) '
-    #     'JOIN scores ON (user.id = scores.user_id AND compTeam.competition_id = scores.competition_id) '
-    #     'JOIN competitions ON (compTeam.competition_id = competitions.id) '
-    #     'WHERE teamMembers.team_id = 1'
-    # ).fetchall()
-    # users = db.execute('SELECT id, first_name, surname FROM user').fetchall()
     # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     # json_url = os.path.join(SITE_ROOT, 'data_files', 'comp_data.json')
     # print(os.path.exists(json_url))
     # with open(json_url, 'r') as f:
     #     comp_data = json.load(f)
     # print (type(comp_data))
-    comp_data=collect_competion_data()
-    return render_template('postal/index.html', data=comp_data) #, competitions=comps, users=users)
+    comp_data = collect_competion_data()
+    return render_template('postal/index.html', data=comp_data)
 
 
 @bp.route('/competition/create' , methods=('GET', 'POST'))
@@ -60,29 +41,38 @@ def comp_create():
     return render_template('postal/create_comp.html')
 
 
-@bp.route('/competition/link/<int:id>' , methods=('GET', 'POST'))
+@bp.route('/competition/link/<int:id>', methods=('GET', 'POST'))
 def comp_link(id=None):
     print (id)
     db = get_db()
     if request.method == 'POST':
-        print("You have attempted to update a Competition")
-        competition_name = request.form['competition_name']
-        season = request.form['season']
-        rounds = request.form['rounds']
+        print("You have attempted to Link a team to a Competition")
+        linked_team_id = request.form['linked_team']
 
+        print ("comp ID = ", id, " linking to team_id=", linked_team_id)
         db.execute(
-            'INSERT INTO compTeam(competition_name, season, rounds) VALUES (?, ?, ?)',
-            (competition_name, season, rounds)
+            'INSERT INTO compTeam (team_id, competition_id) VALUES (?, ?)',
+            (linked_team_id, id)
         )
         db.commit()
+        return redirect(url_for('team.index'))
     elif request.method == 'GET':
+        # teams = db.execute(
+        #     'SELECT * '
+        #     ' FROM team'
+        #     ' WHERE id NOT IN (SELECT team_id FROM compTeam)'
+        #   ).fetchall()
+        comps = db.execute(
+            'SELECT * FROM competitions '
+            'WHERE id NOT IN (SELECT competition_id FROM compTeam)'
+        )
         compdata = db.execute('SELECT * '
                               ' FROM competitions'
                               ' WHERE id = ?'
                               , str(id)
                               ).fetchone()
         print (compdata)
-    return render_template('postal/link_comp.html', data=compdata)
+    return render_template('postal/link_comp.html', data=compdata, teams=teams)
 
 
 
@@ -203,14 +193,6 @@ def collect_competitors_data():
                 competitors[shooter].update({"scores" : scores})
     #print(comp_member)
     print (competitors)
-    # comp_results = {}
-    # comp_member = {}
-    # scores = []
-    # for result in data:
-    #     scores += [{ 'round' : result['round'], 'est' : result['estimated'], 'actual' : result['result']}]
-    #     name = result['first_name'].encode()
-    #     comp_member.update({"scores" : scores})
-    # print(comp_member)
     return "done"
 
 
@@ -278,7 +260,7 @@ def result_save():
         print(sql, params)
         db.execute(sql, params)
         db.commit()
-
+        flash("Record added to the Database")
         return redirect(url_for('competition.index'))
 
 @bp.route("/round_result/<int:id>", methods=['GET'])

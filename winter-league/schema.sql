@@ -13,7 +13,8 @@ CREATE TABLE user (
   surname TEXT NOT NULL,
   username TEXT UNIQUE NOT NULL,
   --password TEXT NOT NULL
-  password TEXT
+  password TEXT,
+  permission_level TEXT DEFAULT "user" NOT NULL
 );
 
 --INSERT INTO user (first_name, surname, username) VALUES ('Craig', 'Attwood', 'craigattwood');

@@ -27,14 +27,14 @@ $(document).ready(function(){
             $('#user_id').val(u_id);
             $('#shooter_name').val(shooter_name);
             $('#estimated').val(0);
-            $('#actual').val(0)
+            $('#actual').val(0);
             $('#round').val(round);
             //$('#date_shot').val();
             //$('#shooter_name').val(shooter_name);
         }
 
-        $("#add_score").modal('show')
-
+        $("#add_score").modal('show');
+        $('#actual').focus();
      });
 
     function clear_score_form() {
@@ -85,4 +85,8 @@ $(document).ready(function(){
 //		});
 //		$("#team_size").val(n)
 //	}
+
+$(function() {
+    $('[data-toggle="popover"]').popover()
+});
 });

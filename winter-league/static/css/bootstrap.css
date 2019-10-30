@@ -10036,8 +10036,19 @@ a.text-dark:hover, a.text-dark:focus {
   }
 }
 
-table.results th, table.results td {
-    align: center;
+table.results th:first-of-type, table.results td:first-of-type {
+    text-align: left;
     vertical-align: middle;
+}
+
+table.results th, table.results td {
+    text-align: center;
+    vertical-align: middle;
+}
+.toast {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
 }
 /*# sourceMappingURL=bootstrap.css.map */

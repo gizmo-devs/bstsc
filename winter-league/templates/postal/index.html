@@ -2,7 +2,7 @@
 
 {% block header %}
   <h1>{% block title %}Competitions{% endblock %}</h1>
-  {% if g.user %}
+  {% if g.user.permission_level == "admin" %}
     <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>
   {% endif %}
 {% endblock %}
@@ -22,7 +22,11 @@
           <tr>
             <th>Name</th>
             {% for round in range(competition.info.rounds) %}
-            <th>{{loop.index}}</th>
+            {% if competition.round_due_dates %}
+              <th tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
+            {% else %}
+              <th>{{loop.index}}</th>
+            {% endif %}
             {% endfor %}
             <th>Total</th>
           </tr>
@@ -30,11 +34,13 @@
           <tbody>
             {% for person in competition.team_results %}
               <tr>
-                <td>{{person.name}}</td>
+                <th scope="row">{{person.name}}</th>
 
                 {% for round in range(num_of_rounds) %}
                   {% if person.scores[round] %}
-                  <td class="record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[round].score_id if person.scores[round]}}">{{ person.scores[round].actual if person.scores[round] in person.scores else '' }}</td>
+                  <td class="record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[round].score_id if person.scores[round]}}">
+                      {{ person.scores[round].actual if person.scores[round] in person.scores else '' }}
+                  </td>
                   {% else %}
                   <td class="record" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="">0</td>
                   {% endif%}
@@ -77,12 +83,12 @@
         </div>
         <div class="form-group">
           <label for="shooter_name">Shooter Name:</label>
-          <input class="form-control" type="text" name="shooter_name" id="shooter_name" value=""/>
+          <input readonly class="form-control-plaintext" type="text" name="shooter_name" id="shooter_name" value=""/>
         </div>
         <div class="form-group">
           <label for="estimated">Estmiated:</label>
           <div class="input-group">
-            <input class="form-control" type="text" name="estimated" id="estimated" value=""/>
+            <input class="form-control" type="number" name="estimated" id="estimated" max="100" min="0" value=""/>
             <div class="input-group-append">
               <span class="input-group-text">/100</span>
             </div>
@@ -91,7 +97,7 @@
         <div class="form-group">
           <label for="actual">Actual:</label>
             <div class="input-group">
-            <input class="form-control" type="text" name="actual" id="actual" value=""/>
+            <input class="form-control" type="number" name="actual" id="actual" max="100" min="0" value=""/>
             <div class="input-group-append">
               <span class="input-group-text">/100</span>
             </div>
@@ -99,7 +105,7 @@
         </div>
         <div class="form-group">
           <label for="date_shot">Date Shot:</label>
-          <input class="form-control" type="date" name="date_shot" id="date_shot" forma value="" required/>
+          <input class="form-control" type="date" name="date_shot" id="date_shot" value="" required pattern="\d{4}-\d{1,2}-\d{1,2}"/>
         </div>
       </div>
 

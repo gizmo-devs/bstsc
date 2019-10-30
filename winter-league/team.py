@@ -26,19 +26,18 @@ def index():
             ' join teamMembers ON user_id=user.id'
             ' AND team_id=' + str(team['id'])
         ).fetchall()
+        active_comps = query_db(
+            'SELECT competition_name FROM competitions WHERE id IN '
+            '(SELECT competition_id FROM compTeam WHERE team_id=?)', str(team['id'])
+        )
         teaminfo = {
             "details" : team,
+            "active_comps" : active_comps,
             "members" : users
         }
         teamData.append(teaminfo)
-    print("PRINTING TEAM DATA")
-    print (teamData)
-
-    users = db.execute(
-        'SELECT user.id, user.first_name, user.surname'
-        ' FROM user'
-        ' join teamMembers ON user_id=user.id'
-    ).fetchall()
+    #print("PRINTING TEAM DATA")
+    #print (teamData)
 
     return render_template('postal/teams.html', teams=teamData)
 
@@ -119,21 +118,47 @@ def team_edit(id):
 #
 #     return render_template('postal/manage_team.html')
 
+@bp.route("get_team/<int:id>")
 def get_team(id):
-    post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
-        (id,)
-    ).fetchone()
+    active_comps = query_db(
+        'SELECT competition_name FROM competitions WHERE id IN '
+        '(SELECT competition_id FROM compTeam WHERE team_id=?)', str(id)
+    )
+    members = get_members(id)
 
-    if post is None:
-        abort(404, "Post id {0} doesn't exist.".format(id))
+    # if post is None:
+    #     abort(404, "Post id {0} doesn't exist.".format(id))
+    #
+    # if check_author and post['author_id'] != g.user['id']:
+    #     abort(403)
 
-    if check_author and post['author_id'] != g.user['id']:
-        abort(403)
+    print("Active Comps : ", active_comps)
+    print(members)
+    return "Done"
 
-    return post
+
+@bp.route('/link/<int:team_id>', methods=('GET', 'POST'))
+def link_to_comp(team_id):
+    if request.method == 'POST':
+        print("You have tried to link a competiton")
+        comp_id = request.form['competiton_id']
+        db = get_db()
+        db.execute(
+            'INSERT INTO compTeam (team_id, competition_id) VALUES (?,?)', (str(team_id), str(comp_id))
+        )
+        db.commit()
+        return redirect(url_for('team.index'))
+    else:
+
+        team = query_db(
+                'SELECT id, team_name FROM team WHERE id=?', str(team_id), one=True
+            )
+        print (team)
+        comps = query_db(
+                'SELECT * FROM competitions'
+            )
+
+    return render_template('postal/link_team.html', competitions=comps, team=team)
 
 
 @bp.route('/edit/<int:tid>/remove_member/<int:uid>', methods=('GET', 'POST'))

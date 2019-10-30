@@ -9,35 +9,53 @@
 
 {% block content %}
   {% for team in teams %}
-    <article class="comp">
-      <header>
-        <div>
-          <h2>{{ team['details']['team_name'] }} <small>{{team['details']['season']}}</small></h2>
-        </div>
+    <div class="card mt-2">
+    <div class="card-header">
+      <h2 class="display-5 float-left">{{ team['details']['team_name'] }} <small>{{team['details']['season']}}</small></h2>
+      <div class="btn-group float-right" role="group" aria-label="Basic example">
         <a class="btn btn-primary" role="button" href="{{ url_for('competition.comp_link', id=team.details.id) }}">Link to Competition</a>
         <a class="btn btn-primary" role="button" href="{{ url_for('team.team_edit', id=team.details.id) }}">Update Team</a>
-      </header>
-      {% if team['details']['team_size'] %}
-        <div class="team">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Member</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for user in team['members'] %}
-              <tr>
-                <td>{{loop.index}}</td>
-                <td>{{user['first_name']}} {{user['surname']}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+        {% if team['details']['team_size'] %}
+          <div class="team">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Member</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in team['members'] %}
+                <tr>
+                  <td>{{loop.index}}</td>
+                  <td>{{user['first_name']}} {{user['surname']}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
         </div>
-      {% endif %}
-    </article>
+        <div class="col">
+          {% if team['active_comps'] %}
+          <ul class="list-group">
+            <li class="list-group-item list-group-item-secondary">
+              <h6>Linked Competitions</h6>
+            </li>
+            {% for active_comp in team['active_comps'] %}
+            <li class="list-group-item">{{active_comp['competition_name']}}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
     {% if not loop.last %}
       <hr>
     {% endif %}
