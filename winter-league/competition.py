@@ -6,7 +6,7 @@ from werkzeug.exceptions import abort
 
 from .auth import login_required
 from .db import get_db, query_db
-import team
+from . import team
 
 bp = Blueprint('competition', __name__, )
 
@@ -233,7 +233,7 @@ def collect_scores(comp_id):
         member_results['scores'] = scores
         # print (member_results)
         team_results += [member_results]
-    print team_results
+    print (team_results)
     return team_results
 
 @bp.route("/round_result/save", methods=["POST"])
