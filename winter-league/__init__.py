@@ -37,6 +37,8 @@ def create_app(test_config=None):
     app.register_blueprint(competition.bp)
     from . import team
     app.register_blueprint(team.bp)
+    from . import user
+    app.register_blueprint(user.bp)
 
     app.add_url_rule('/', endpoint='index')
 

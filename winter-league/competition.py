@@ -262,6 +262,8 @@ def collect_scores(comp_id):
     # print (team_results)
     # return team_results
 
+
+
 @bp.route("/test/comp_teams/<comp_id>")
 def get_competition_teams(comp_id):
     teams_in_comp = query_db(
