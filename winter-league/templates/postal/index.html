@@ -19,22 +19,24 @@
       <span class="float-right"><a class="btn btn-info float-right" href="{{url_for('competition.comp_edit', id=competition.info.id)}}">edit</a></span>
     </div>
     <div class="card-body">
-        <table class="table table-responsive table-bordered results">
+      {% for team in competition.teams%}
+      <h3>{{team.team_name}}</h3>
+      <table class="table table-responsive table-bordered results">
           <thead>
           <tr>
             <th>Name</th>
             {% for round in range(competition.info.rounds) %}
-            {% if competition.round_due_dates %}
-              <th tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
-            {% else %}
-              <th>{{loop.index}}</th>
-            {% endif %}
+              {% if competition.round_due_dates %}
+                <th tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
+              {% else %}
+                <th>{{loop.index}}</th>
+              {% endif %}
             {% endfor %}
             <th>Total</th>
           </tr>
           </thead>
           <tbody>
-            {% for person in competition.teams %}
+            {% for person in team.shooters %}
               <tr>
                 <th scope="row">{{person.name}}</th>
 
@@ -52,6 +54,7 @@
             {% endfor %}
           </tbody>
         </table>
+      {% endfor %}
     </div>
   </div>
   {% else %}

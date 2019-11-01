@@ -5,6 +5,8 @@
   {% if g.user %}
     <a class="action" href="{{ url_for('competition.comp_create') }}">New</a>
   {% endif %}
+  <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
 {% endblock %}
 
 {% block content %}
@@ -25,9 +27,16 @@
     {% set due = 'round{}_due'.format(loop.index) %}
     <div class="form-group">
       <label for="round{{loop.index}}_due">Round {{loop.index}} due</label>
-      <input class="form-control" type="date" name="round{{loop.index}}_due" id="round{{loop.index}}_due" required value="{{ data.__getitem__(due) }}">
+      <input class="form-control round_due" type="text" name="round{{loop.index}}_due" id="round{{loop.index}}_due" required value="{{ data.__getitem__(due) }}">
     </div>
     {% endfor %}
     <input class="btn btn-primary" type="submit" value="Create">
   </form>
+
+<script>
+  $(function(){
+    $('.round_due').datepicker();
+    $('.round_due').datepicker("option", "dateFormat", 'yy-mm-dd');
+  });
+</script>
 {% endblock %}

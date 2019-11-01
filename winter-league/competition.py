@@ -196,26 +196,18 @@ def collect_competitors_data():
     return "done"
 
 
-def get_competition_teams(comp_id):
-    teams_in_comp = query_db(
-        'SELECT team_id, team_name from compTeam '
-        ' JOIN team ON team.id = compTeam.team_id'
-        ' WHERE compTeam.competition_id=?', str(comp_id)
-    )
-    return teams_in_comp
-
-@bp.route("/test/user_scores")
+@bp.route("/test/user_scores/<comp_id>")
 def collect_scores(comp_id):
     # comp_id are params
-    #comp_id =1
+    #comp_id = 1
     comp_results = []
     for t in get_competition_teams(comp_id):
-        print("Team ID", t)
+        #print("Team ID", t)
         current_team = {}
-        current_team.update({'team_id': t['team_id'], "team_name": t['team_name']})
+        current_team.update({'team_id': t['team_id'], "team_name": t['team_name'], "shooters": {}})
         team_results = []
         for team_member in team.get_members(t['team_id']):
-            print(team_member)
+            #print(team_member)
             member_results = {}
             member_results['user_id'] = team_member['user_id']
             member_results['name'] = team_member['first_name'] + ' ' + team_member['surname']
@@ -227,11 +219,13 @@ def collect_scores(comp_id):
             # print (scores)
             member_results['scores'] = scores
             team_results += [member_results]
-        current_team["team_name"] = team_results
-        print (team_results)
-        comp_results += current_team
-    print("NEXT TEAM")
+
+        current_team["shooters"] = team_results
+        print (current_team)
+        comp_results += [current_team]
+
     return comp_results
+
 
     # for member in team.get_members(comp_id):
     #     member_results = {}
@@ -267,6 +261,15 @@ def collect_scores(comp_id):
     #     team_results += [member_results]
     # print (team_results)
     # return team_results
+
+@bp.route("/test/comp_teams/<comp_id>")
+def get_competition_teams(comp_id):
+    teams_in_comp = query_db(
+        'SELECT team_id, team_name from compTeam '
+        ' JOIN team ON team.id = compTeam.team_id'
+        ' WHERE compTeam.competition_id=?', str(comp_id)
+    )
+    return teams_in_comp
 
 
 def get_compeitors_scores(comp_id, user_id):
