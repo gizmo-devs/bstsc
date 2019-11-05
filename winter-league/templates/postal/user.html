@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}User{% endblock %}</h1>
+  {% if g.user.permission_level == "admin" %}
+<!--    <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>-->
+  {% endif %}
+<!--  <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>-->
+<!--  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>-->
+{% endblock %}
+
+{% block content %}
+{% if g.user.permission_level == "admin" %}
+    <a class="action" href="{{ url_for('competition.comp_create') }}">Add User</a>
+{% endif %}
+{% if user_data %}
+    <form action="{{url_for('user.specific_user', user_id=user_data.id)}}" method="POST">
+        <input class="hidden" hidden name="u_id" value="{{user_data.id}}">
+        <div class="form-group">
+          <label for="first_name">First Name:</label>
+          <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}">
+        </div>
+        <div class="form-group">
+          <label for="surname">Surname:</label>
+          <input type="text" class="form-control" id="surname" name="surname" value="{{ user_data.surname }}">
+        </div>
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" class="form-control" id="username" name="username" value="{{ user_data.username }}">
+        </div>
+        <div class="form-group">
+          <label for="permission_level">Access level:</label>
+          <input type="text" class="form-control" id="permission_level" name="permission_level" value="{{ user_data.permission_level }}">
+        </div>
+        <button class="btn btn-success" type="submit">Update</button>
+    </form>
+{% endif %}
+{% endblock %}
