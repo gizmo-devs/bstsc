@@ -10051,4 +10051,9 @@ table.results th, table.results td {
     right: 10px;
     z-index: 1;
 }
+
+table.table.user thead tr, table.table.user td {
+    text-align: center !important;
+    vertical-align: middle;
+}
 /*# sourceMappingURL=bootstrap.css.map */

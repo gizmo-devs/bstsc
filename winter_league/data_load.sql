@@ -16,3 +16,6 @@ INSERT INTO teamMembers (team_id, user_id) VALUES (1, 1),(1, 2);
 INSERT INTO teamMembers (team_id, user_id) VALUES (2, 3),(2, 4);
 
 INSERT INTO scores (competition_id, user_id, round, estimated, result, completed) VALUES (1, 1, 1, 100, 100, '2019-10-22'), (1, 1, 2, 99, 99, '2019-10-22')
+
+INSERT INTO user (first_name, surname, username) VALUES ('Trevor', 'Teed', 'tteed'), ('Steve', 'Pearcey', 'spearcey'), ('Tony', 'Crownhurst', 'tcrownhurst'), ('Rob', 'Sampson', 'rsampson'), ('Jonathon', 'Pratt', 'jpratt'), ('Margery', 'Teed', 'mteed')
+INSERT INTO user (first_name, surname, username) VALUES ('Mike', 'Lemon', 'mlemon'), ('Dave', 'Lemon', 'dlemon'), ('Ian', 'Bisson', 'ibisson'), ('Simon', 'Teed', 'steed')
