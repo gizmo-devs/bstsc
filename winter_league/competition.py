@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
-import os, json
+import os, json, datetime
 from werkzeug.exceptions import abort
 
 from .auth import login_required
@@ -10,6 +10,7 @@ from . import team
 
 bp = Blueprint('competition', __name__, )
 
+today = datetime.datetime.today().date()
 
 @bp.route('/')
 def index():
@@ -18,9 +19,9 @@ def index():
     # print(os.path.exists(json_url))
     # with open(json_url, 'r') as f:
     #     comp_data = json.load(f)
-    # print (type(comp_data))
+    print ('Requesting competition data')
     comp_data = collect_competion_data()
-    return render_template('postal/index.html', data=comp_data)
+    return render_template('postal/index.html', data=comp_data, date=today)
 
 
 @bp.route('/competition/create' , methods=('GET', 'POST'))
@@ -43,7 +44,7 @@ def comp_create():
 
 @bp.route('/competition/link/<int:id>', methods=('GET', 'POST'))
 def comp_link(id=None):
-    print (id)
+    #print (id)
     db = get_db()
     if request.method == 'POST':
         print("You have attempted to Link a team to a Competition")
@@ -57,23 +58,14 @@ def comp_link(id=None):
         db.commit()
         return redirect(url_for('team.index'))
     elif request.method == 'GET':
-        # teams = db.execute(
-        #     'SELECT * '
-        #     ' FROM team'
-        #     ' WHERE id NOT IN (SELECT team_id FROM compTeam)'
-        #   ).fetchall()
-        comps = db.execute(
-            'SELECT * FROM competitions '
-            'WHERE id NOT IN (SELECT competition_id FROM compTeam)'
-        )
+        print ('Fetching competition details for comp id : ' + str(id))
         compdata = db.execute('SELECT * '
                               ' FROM competitions'
                               ' WHERE id = ?'
                               , str(id)
                               ).fetchone()
-        print (compdata)
-    return render_template('postal/link_comp.html', data=compdata, teams=teams)
 
+    return render_template('postal/link_comp.html', data=compdata, teams=teams)
 
 
 @bp.route('/competition/edit/<int:id>' , methods=('GET', 'POST'))
@@ -90,7 +82,7 @@ def comp_edit(id=None):
         for round in range(rounds):
             r_due = 'round'+ str(round+1) +'_due'
             if request.form.get(r_due) not in ["", "None", None]:
-                due_list += [r_due + " = '" + request.form.get(r_due) + "'"]
+                due_list += [r_due + "='" + request.form.get(r_due) + "'"]
         due =", "
         sql_rounds = due.join(due_list)
 
@@ -98,13 +90,14 @@ def comp_edit(id=None):
         sql_where = ' WHERE id = ?'
 
         sql = sql_beginning + sql_rounds + sql_where
-        #print (sql)
+        print (sql, competition_name, season, rounds, id)
         db.execute(sql, (competition_name, season, rounds, id)
         )
         db.commit()
         return redirect(url_for('competition.index'))
 
     if request.method == "GET":
+
         comp_details = db.execute(
             'SELECT * '
               ' FROM competitions'
@@ -143,13 +136,13 @@ def collect_competion_data():
                 if comp[i] is not None: due_date_list += [comp[i]]
         if len(due_date_list) > 0:
             dict['round_due_dates'] = due_date_list
-        print (due_date_list)
+        #print (due_date_list)
         dict['teams'] = collect_scores(comp['id'])
         comp_list += [dict]
         del dict
     competitions.update({'competitions': comp_list})
 
-    print(comp_list)
+    #print(comp_list)
 
     return competitions
 
@@ -221,47 +214,10 @@ def collect_scores(comp_id):
             team_results += [member_results]
 
         current_team["shooters"] = team_results
-        print (current_team)
+        #print (current_team)
         comp_results += [current_team]
 
     return comp_results
-
-
-    # for member in team.get_members(comp_id):
-    #     member_results = {}
-    #     print(member)
-    #     member_id = member['user_id']
-    #     member_results['user_id'] = member_id
-    #     member_results['name'] = member['first_name'] + ' ' + member['surname']
-    #     db = get_db()
-    #     shooter_results = db.execute(
-    #         'SELECT competitions.id '
-    #         ', compTeam.team_id '
-    #         ', teamMembers.user_id'
-    #         ', user.first_name'
-    #         ', user.surname'
-    #         ', scores.id as score_id'
-    #         ', scores.round'
-    #         ', scores.estimated'
-    #         ', scores.result'
-    #         ' FROM competitions'
-    #         ' join compTeam on competitions.id = compTeam.competition_id'
-    #         ' join teamMembers on compTeam.team_id = teamMembers.team_id'
-    #         ' join user on teamMembers.user_id = user.id'
-    #         ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-    #         ' WHERE scores.competition_id=?'
-    #         ' AND teamMembers.user_id = ?', (comp_id, member_id)
-    #     ).fetchall()
-    #     #print(shooter_results)
-    #     scores = []
-    #     for row in shooter_results:
-    #         scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result']}]
-    #     member_results['scores'] = scores
-    #     # print (member_results)
-    #     team_results += [member_results]
-    # print (team_results)
-    # return team_results
-
 
 
 @bp.route("/test/comp_teams/<comp_id>")
@@ -293,14 +249,12 @@ def get_compeitors_scores(comp_id, user_id):
     )
     return user_results
 
-#def get_team_scores(comp_id, team_id):
-
 
 @bp.route("/round_result/save", methods=["POST"])
 def result_save():
     if request.method == 'POST':
         db = get_db()
-        print('you have tried to save a result')
+        print('You have tried to save a result')
         score_id = request.form['score_id']
         comp_id = request.form['competition_id']
         user_id = request.form['user_id']
@@ -317,7 +271,7 @@ def result_save():
             params = (user_id, comp_id, completed, est, res, round, score_id)
 
 
-        print(sql, params)
+        #print(sql, params)
         db.execute(sql, params)
         db.commit()
         flash("Record added to the Database")
