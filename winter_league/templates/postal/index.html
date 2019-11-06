@@ -34,7 +34,7 @@
                  {% else %}
                     {% set r_state = '' %}
                  {% endif %}
-                <th class="{{r_state}}" tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
+                <th class="" tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
               {% else %}
                 <th>{{loop.index}}</th>
               {% endif %}

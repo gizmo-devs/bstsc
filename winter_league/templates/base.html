@@ -64,13 +64,13 @@
   {% block content %}{% endblock %}
 </section>
 {% if get_flashed_messages() %}
-</body>
 <script>
 $(document).ready(function(){
-  $('.toast').toast({animation: true, delay: 1500})
+  $('.toast').toast({animation: true, delay: 1750})
   $('.toast').toast('show');
 });
 </script>
 {% endif %}
+</body>
 <script src="{{ url_for('static', filename='js/wizardry.js') }}"></script>
 </html>

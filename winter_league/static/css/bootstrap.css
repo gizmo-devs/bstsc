@@ -10056,4 +10056,11 @@ table.table.user thead tr, table.table.user td {
     text-align: center !important;
     vertical-align: middle;
 }
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
 /*# sourceMappingURL=bootstrap.css.map */
