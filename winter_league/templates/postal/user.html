@@ -10,9 +10,6 @@
 {% endblock %}
 
 {% block content %}
-{% if g.user.permission_level == "admin" %}
-    <a class="action" href="{{ url_for('competition.comp_create') }}">Add User</a>
-{% endif %}
 {% if user_data %}
     <form action="{{url_for('user.specific_user', user_id=user_data.id)}}" method="POST">
         <input class="hidden" hidden name="u_id" value="{{user_data.id}}">

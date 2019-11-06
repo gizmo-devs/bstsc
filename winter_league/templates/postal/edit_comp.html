@@ -30,13 +30,19 @@
       <input class="form-control round_due" type="text" name="round{{loop.index}}_due" id="round{{loop.index}}_due" required value="{{ data.__getitem__(due) }}">
     </div>
     {% endfor %}
-    <input class="btn btn-primary" type="submit" value="Create">
+    <input class="btn btn-primary" type="submit" value="Update">
   </form>
 
 <script>
   $(function(){
-    $('.round_due').datepicker();
-    $('.round_due').datepicker("option", "dateFormat", 'yy-mm-dd');
+    //$('.round_due')
+    $('.round_due').each(function(){
+      $(this).datepicker({
+        setDate: $(this).val(),
+        dateFormat: 'yy-mm-dd'
+      });
+    });
+    $('.round_due').datepicker(["setDate", $(this).val()],["option", "dateFormat", 'yy-mm-dd']);
   });
 </script>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block header %}
   <h1>{% block title %}Competitions{% endblock %}</h1>
   {% if g.user.permission_level == "admin" %}
-    <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>
+
   {% endif %}
   <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
@@ -29,7 +29,12 @@
             <th>Name</th>
             {% for round in range(competition.info.rounds) %}
               {% if competition.round_due_dates %}
-                <th tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
+                 {% if date > competition.round_due_dates[loop.index0]%}
+                    {% set r_state = 'table-danger ' %}
+                 {% else %}
+                    {% set r_state = '' %}
+                 {% endif %}
+                <th class="{{r_state}}" tabindex="0" data-toggle="popover" data-placement="top" data-trigger="focus" title="Round {{loop.index}} Due:" data-content="{{competition.round_due_dates[loop.index]}}">{{loop.index}}</th>
               {% else %}
                 <th>{{loop.index}}</th>
               {% endif %}
@@ -43,12 +48,17 @@
                 <th scope="row">{{person.name}}</th>
 
                 {% for round in range(num_of_rounds) %}
+                {% if date > competition.round_due_dates[loop.index0] and not person.scores[round]%}
+                    {% set r_state = 'table-danger ' %}
+                 {% else %}
+                    {% set r_state = '' %}
+                 {% endif %}
                   {% if person.scores[round] %}
-                <td class="record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[round].score_id if person.scores[round]}}">
+                <td class="{{r_state}}record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[round].score_id if person.scores[round]}}">
                   {{ person.scores[round].actual if person.scores[round] in person.scores else '' }}
                 </td>
                   {% else %}
-                <td class="record text-muted" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="">0</td>
+                <td class="{{r_state}}record text-muted" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="">0</td>
                   {% endif%}
                 {% endfor %}
                 <td>{{person.scores | sum(attribute='actual')}}</td>
@@ -127,8 +137,11 @@
 </div>
 <script>
   $(function(){
-    $('#date_shot').datepicker();
-    $('#date_shot').datepicker("option", "dateFormat", 'yy-mm-dd');
+    //$('#date_shot').datepicker();
+    $('#date_shot').datepicker({
+      "setDate": $('#date_shot').val(),
+      dateFormat: 'yy-mm-dd',
+    });
   });
 </script>
 {% endblock %}

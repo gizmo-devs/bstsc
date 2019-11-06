@@ -22,6 +22,17 @@
     <li class="nav-item">
       <a class="nav-link" href="{{ url_for('team.index') }}">Teams</a>
     </li>
+    <!-- Dropdown -->
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+        Create
+      </a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="{{ url_for('team.team_create') }}">New Team</a>
+        <a class="dropdown-item" href="{{ url_for('competition.comp_create') }}">New Competition</a>
+        <a class="dropdown-item" href="{{ url_for('user.create_user') }}">New User</a>
+      </div>
+    </li>
   </ul>
   <ul class="navbar-nav">
     {% if g.user %}
