@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 import os, json, datetime
 from werkzeug.exceptions import abort
@@ -297,5 +297,5 @@ def result(id=0):
                 "result": record_data['result'],
                 "round": record_data['round']
             }
-        return res_dict
+        return jsonify(res_dict)
 
