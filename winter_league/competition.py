@@ -285,7 +285,7 @@ def result(id=0):
         record_data = query_db(
             'SELECT user_id, competition_id, completed, estimated, result, round '
             'FROM scores '
-            'WHERE id = ?', str(id), one=True
+            'WHERE id = ?', [str(id)], one=True
         )
         if record_data is not None:
             print (record_data, type(record_data))
