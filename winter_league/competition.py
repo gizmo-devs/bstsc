@@ -8,6 +8,7 @@ from .auth import login_required
 from .db import get_db, query_db
 from . import team
 
+
 bp = Blueprint('competition', __name__, )
 
 today = datetime.datetime.today().date()
@@ -284,7 +285,7 @@ def result(id=0):
         record_data = query_db(
             'SELECT user_id, competition_id, completed, estimated, result, round '
             'FROM scores '
-            'WHERE id = ?', [str(id)], one=True
+            'WHERE id = ?', str(id), one=True
         )
         if record_data is not None:
             print (record_data, type(record_data))
@@ -297,3 +298,4 @@ def result(id=0):
                 "round": record_data['round']
             }
         return res_dict
+
