@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-
+    {{data.competitons}}
   {% for competition in data.competitions %}
   {% set num_of_rounds = competition.info.rounds %}
   <div class="card mt-2">
@@ -23,7 +23,8 @@
     <div class="card-body">
       {% for team in competition.teams%}
       <h3>{{team.team_name}}</h3>
-      <table class="table table-responsive table-bordered results">
+        <div class="table-responsive">
+      <table class="table table-bordered results">
           <thead>
           <tr>
             <th>Name</th>
@@ -47,15 +48,26 @@
               <tr>
                 <th scope="row">{{person.name}}</th>
 
-                {% for round in range(num_of_rounds) %}
-                {% if date > competition.round_due_dates[loop.index0] and not person.scores[round]%}
+                {% for curr_round in range(num_of_rounds) %}
+
+                {% if date > competition.round_due_dates[loop.index0] and not person.scores[curr_round]%}
                     {% set r_state = 'table-danger ' %}
-                 {% else %}
+                {% else %}
                     {% set r_state = '' %}
-                 {% endif %}
-                  {% if person.scores[round] %}
-                <td class="{{r_state}}record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[round].score_id if person.scores[round]}}">
-                  {{ person.scores[round].actual if person.scores[round] in person.scores else '' }}
+                {% endif %}
+
+{#                if person.scores[curr_round] is defined #}
+{#                   for x in range(num_of_rounds) #}
+{#                    if x == person.scores[curr_round].round #}
+{#                      Y #}
+{#
+{#                     endif #}
+{#                  endfor #}
+{#                endif #}
+{#                    {{curr_round }} = {{ person.scores[curr_round].round if person.scores[curr_round] is defined else 0 }}, #}
+                  {% if person.scores[curr_round] %}
+                <td class="{{r_state}}record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}">
+                  {{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}
                 </td>
                   {% else %}
                 <td class="{{r_state}}record text-muted" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="">0</td>
@@ -66,6 +78,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% endfor %}
     </div>
   </div>
