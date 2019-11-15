@@ -110,13 +110,13 @@ def comp_edit(id=None):
     return render_template('postal/index.html')
 
 
-@bp.route("/test")
+@bp.route("/data")
 def collect_competion_data():
     db = get_db()
     competitions = {}
-    info = db.execute(
-        'SELECT * from competitions'
-    ).fetchall()
+    info = query_db(
+        'SELECT * from competitions',[]
+    )
     comp_list = []
     #dict['info'] = info
     for comp in info:
@@ -147,11 +147,11 @@ def collect_competion_data():
 
     return competitions
 
-@bp.route("/test/compdata")
+@bp.route("/data/compdata")
 def collect_competitors_data():
     competition_id = 1
     db = get_db()
-    data = db.execute(
+    data = query_db(
         'SELECT competitions.id'
         ', compTeam.team_id'
         ', teamMembers.user_id'
@@ -165,8 +165,8 @@ def collect_competitors_data():
         ' join teamMembers on compTeam.team_id = teamMembers.team_id'
         ' join user on teamMembers.user_id = user.id'
         ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-        ' WHERE scores.competition_id=?', str(competition_id)
-    ).fetchall()
+        ' WHERE scores.competition_id=?', [str(competition_id)]
+    )
 
     competitors = {}
     print (data)
@@ -187,10 +187,10 @@ def collect_competitors_data():
                 competitors[shooter].update({"scores" : scores})
     #print(comp_member)
     print (competitors)
-    return "done"
+    return jsonify(competitors)
 
 
-@bp.route("/test/user_scores/<comp_id>")
+@bp.route("/data/user_scores/<comp_id>")
 def collect_scores(comp_id):
     # comp_id are params
     #comp_id = 1
@@ -221,7 +221,7 @@ def collect_scores(comp_id):
     return comp_results
 
 
-@bp.route("/test/comp_teams/<comp_id>")
+@bp.route("/data/comp_teams/<comp_id>")
 def get_competition_teams(comp_id):
     teams_in_comp = query_db(
         'SELECT team_id, team_name from compTeam '
