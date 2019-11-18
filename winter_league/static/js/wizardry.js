@@ -34,7 +34,7 @@ $(document).ready(function(){
         }
 
         $("#add_score").modal('show');
-        $('#actual').focus();
+        $('#actual').select();
      });
 
     function clear_score_form() {
