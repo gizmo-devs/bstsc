@@ -5,8 +5,7 @@ $(document).ready(function(){
         var shooter_name  = $(this).attr('data-name');
         $('#round_header_num').text($(this).attr('data-round'));
         console.log(score_id)
-        if (score_id!=0) {
-            //alert($(this).attr('data-shot-id'));
+        if (score_id!='None') {
             $.get("/round_result/" + score_id, function(data) {
                 console.log(data);
                 var round = data.round;

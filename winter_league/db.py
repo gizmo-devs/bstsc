@@ -4,6 +4,7 @@ import click
 from flask import current_app, g
 from flask.cli import with_appcontext
 
+import os.path
 
 def get_db():
     if 'db' not in g:
@@ -43,6 +44,13 @@ def init_db_load():
         db.executescript(f.read().decode('utf8'))
 
 
+def init_db_manual_update():
+    db = get_db()
+    if os.path.isfile('db_update.sql'):
+        print ("File exist")
+    with current_app.open_resource('db_update.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
@@ -57,8 +65,18 @@ def init_db_load_command():
     """Clear the existing data and create new tables."""
     init_db_load()
     click.echo('Initialized the user data.')
+
+
+@click.command('init-db-manual-update')
+@with_appcontext
+def init_db_manual_update():
+    """Force an update to the SQLite Database."""
+    init_db_manual_update()
+    click.echo('Database updated.')
+
     
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(init_db_load_command)
+    app.cli.add_command(init_db_manual_update)

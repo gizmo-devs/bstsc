@@ -194,12 +194,12 @@ def collect_competitors_data():
     )
 
     competitors = {}
-    print (data)
+    # print (data)
     for row in data:
         if row['user_id'] not in competitors:
             competitors[row['user_id']] = {"name":row['first_name'] + " "+ row['surname'] }
 
-    print (competitors)
+    # print (competitors)
     comp_results = {}
     comp_member = {}
     for shooter in competitors:
@@ -211,7 +211,7 @@ def collect_competitors_data():
         # name = result['first_name'].encode()
                 competitors[shooter].update({"scores" : scores})
     #print(comp_member)
-    print (competitors)
+    # print (competitors)
     return jsonify(competitors)
 
 
@@ -231,7 +231,6 @@ def collect_scores(comp_id):
             member_results['user_id'] = team_member['user_id']
             member_results['name'] = team_member['first_name'] + ' ' + team_member['surname']
             shooter_results = get_compeitors_scores(comp_id, team_member['user_id'])
-            print(shooter_results)
             scores = []
             for row in shooter_results:
                 scores += [{
