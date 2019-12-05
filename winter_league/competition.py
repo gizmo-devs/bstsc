@@ -25,20 +25,22 @@ def index():
     return render_template('postal/index.html', data=comp_data, date=today)
 
 
-@bp.route('/competition/create' , methods=('GET', 'POST'))
+@bp.route('/competition/create', methods=('GET', 'POST'))
 def comp_create():
     if request.method == 'POST':
         print("You have attempted to create a competition")
         competition_name = request.form['competition_name']
         season = request.form['season']
-        rounds = request.form['rounds']
 
         db = get_db()
         db.execute(
-            'INSERT INTO competitions (competition_name, season, rounds) VALUES (?, ?, ?)',
-            (competition_name, season, rounds)
+            'INSERT INTO competitions (competition_name, season) VALUES (?, ?)',
+            (competition_name, season)
         )
         db.commit()
+
+        comp_id = query_db('SELECT last_insert_rowid() from competitions', (), one=True)
+        return redirect(url_for('competition.comp_edit', comp_id=comp_id[0]))
 
     return render_template('postal/create_comp.html')
 
@@ -69,11 +71,11 @@ def comp_link(id=None):
     return render_template('postal/link_comp.html', data=compdata, teams=teams)
 
 
-@bp.route('/competition/edit/<int:id>' , methods=('GET', 'POST'))
-def comp_edit(id=None):
+@bp.route('/competition/edit/<int:comp_id>', methods=('GET', 'POST'))
+def comp_edit(comp_id=None):
     db = get_db()
     if request.method == 'POST':
-        print("You have attempted to Update a competition", id)
+        print("You have attempted to Update a competition", comp_id)
         competition_name = request.form['competition_name']
         season = request.form['season']
         rounds = int(request.form['rounds'])
@@ -91,8 +93,8 @@ def comp_edit(id=None):
         sql_where = ' WHERE id = ?'
 
         sql = sql_beginning + sql_rounds + sql_where
-        print (sql, competition_name, season, rounds, id)
-        db.execute(sql, (competition_name, season, rounds, id)
+        print (sql, competition_name, season, rounds, comp_id)
+        db.execute(sql, (competition_name, season, rounds, comp_id)
         )
         db.commit()
         return redirect(url_for('competition.index'))
@@ -100,14 +102,38 @@ def comp_edit(id=None):
     if request.method == "GET":
 
         comp_details = db.execute(
-            'SELECT * '
-              ' FROM competitions'
-              ' WHERE id = ?'
-              , str(id)
-              ).fetchone()
+            'SELECT competitions.*'
+            ' FROM competitions'
+            ' WHERE id = ?'
+            , str(comp_id)
+        ).fetchone()
 
-        return render_template('postal/edit_comp.html', data=comp_details)
+        comp_rounds = query_db("SELECT id, num, due_date FROM rounds WHERE comp_id=?", [comp_id])
+        print (comp_rounds)
+        return render_template('postal/edit_comp.html', data=comp_details, rounds=comp_rounds)
     return render_template('postal/index.html')
+
+
+@bp.route('/competition/edit/<int:comp_id>/remove_round/<int:round_id>', methods=('GET', 'POST'))
+def remove_round(comp_id, round_id):
+    db = get_db()
+    db.execute(
+            'DELETE FROM rounds WHERE comp_id=? AND id=?', (comp_id, round_id)
+        )
+    db.commit()
+    return redirect(url_for('competition.comp_edit', comp_id=comp_id))
+
+
+@bp.route('/competition/edit/<int:comp_id>/add_round', methods=('GET', 'POST'))
+def add_round(comp_id):
+    round_num = request.form['new_round_num']
+    round_due_date = request.form['round_due_date']
+    db = get_db()
+    db.execute(
+            'INSERT INTO rounds (comp_id, num, due_date) VALUES(?, ?, ?)', (comp_id, round_num, round_due_date)
+        )
+    db.commit()
+    return redirect(url_for('competition.comp_edit', comp_id=comp_id))
 
 
 @bp.route("/data")
@@ -121,8 +147,8 @@ def collect_competion_data():
     #dict['info'] = info
     for comp in info:
         dict = {}
-        dict['info']={}
-        due_date_list=[]
+        dict['info'] = {}
+        due_date_list = []
         for col in comp.keys():
             i = comp.keys().index(col)
             if col == "id":
@@ -133,11 +159,10 @@ def collect_competion_data():
                 dict['info']['season'] = comp[i]
             if col == "rounds":
                 dict['info']['rounds'] = comp[i]
-            if col.endswith("_due"):
-                if comp[i] is not None: due_date_list += [comp[i]]
-        if len(due_date_list) > 0:
-            dict['round_due_dates'] = due_date_list
-        #print (due_date_list)
+            #if col.endswith("_due"):
+            #    if comp[i] is not None: due_date_list += [comp[i]]
+        #if len(due_date_list) > 0:
+        dict['round_due_dates'] = [round[1] for round in get_comp_due_dates(comp['id'])]
         dict['teams'] = collect_scores(comp['id'])
         comp_list += [dict]
         del dict
@@ -206,18 +231,20 @@ def collect_scores(comp_id):
             member_results['user_id'] = team_member['user_id']
             member_results['name'] = team_member['first_name'] + ' ' + team_member['surname']
             shooter_results = get_compeitors_scores(comp_id, team_member['user_id'])
-
+            print(shooter_results)
             scores = []
             for row in shooter_results:
-                scores += [{ 'score_id' : row['score_id'], 'round' : row['round'], 'est' : row['estimated'], 'actual' : row['result'] }]
-            # print (scores)
+                scores += [{
+                    'score_id' : row['score_id'],
+                    'round' : int(row['round'] or 0),
+                    'est' : int(row['estimated'] or 0),
+                    'actual' : int(row['result'] or 0)
+                }]
             member_results['scores'] = scores
             team_results += [member_results]
 
         current_team["shooters"] = team_results
-        #print (current_team)
         comp_results += [current_team]
-
     return comp_results
 
 
@@ -233,22 +260,60 @@ def get_competition_teams(comp_id):
 
 def get_compeitors_scores(comp_id, user_id):
     user_results = query_db(
-        'SELECT competitions.id as comp_id'
-        ' , compTeam.team_id as team_id'
-        ' , teamMembers.user_id'
-        ' , scores.id as score_id'
-        ' , scores.round'
-        ' , scores.estimated'
-        ' , scores.result'
-        ' FROM competitions'
-        ' join compTeam on competitions.id = compTeam.competition_id'
-        ' join teamMembers on compTeam.team_id = teamMembers.team_id'
-        ' join user on teamMembers.user_id = user.id'
-        ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-        ' WHERE scores.competition_id=?'
-        ' AND teamMembers.user_id = ?', [comp_id, user_id]
+        """SELECT 
+--rounds.*
+rounds.comp_id
+, rounds.num
+--, compTeam.team_id
+, compTeam.competition_id
+, teamMembers.user_id
+, scores.id as score_id
+, scores.round
+, scores.estimated
+, scores.result
+, scores.completed
+FROM rounds
+left JOIN compTeam 
+    ON compTeam.competition_id = rounds.comp_id
+left JOIN teamMembers
+    ON teamMembers.team_id = compTeam.team_id
+LEFT JOIN scores
+    ON scores.competition_id = rounds.comp_id
+        AND teamMembers.user_id = scores.user_id
+        AND rounds.num = scores.round
+WHERE rounds.comp_id=?
+     AND teamMembers.user_id=?""", [comp_id, user_id]
     )
+
+
+
+    # WORKING COPY -- SQL
+
+    # user_results = query_db(
+    #     'SELECT competitions.id as comp_id'
+    #     ' , compTeam.team_id as team_id'
+    #     ' , teamMembers.user_id'
+    #     ' , scores.id as score_id'
+    #     ' , scores.round'
+    #     ' , scores.estimated'
+    #     ' , scores.result'
+    #     ' FROM competitions'
+    #     ' join compTeam on competitions.id = compTeam.competition_id'
+    #     ' join teamMembers on compTeam.team_id = teamMembers.team_id'
+    #     ' join user on teamMembers.user_id = user.id'
+    #     ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
+    #     ' WHERE scores.competition_id=?'
+    #     ' AND teamMembers.user_id = ?', [comp_id, user_id]
+    # )
     return user_results
+
+
+@bp.route("/<int:comp_id>/due_dates", methods=["GET"])
+def get_comp_due_dates(comp_id):
+    return query_db(
+        "SELECT num, due_date FROM rounds WHERE comp_id = ?"
+        , str(comp_id)
+    )
 
 
 @bp.route("/round_result/save", methods=["POST"])

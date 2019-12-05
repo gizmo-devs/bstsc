@@ -25,6 +25,8 @@ CREATE TABLE user (
 --INSERT INTO user (first_name, surname, username) VALUES ('Jack', 'Smith', 'Jsmith');
 --INSERT INTO user (first_name, surname, username) VALUES ('Matt', 'Robinson', 'mRobinson');
 
+
+
 CREATE TABLE team (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_name TEXT NOT NULL,
@@ -71,6 +73,13 @@ CREATE TABLE competitions (
     round16_due DATE NULL,
     round17_due DATE NULL,
     round18_due DATE NULL
+);
+
+CREATE TABLE rounds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  comp_id INTEGER NOT NULL,
+  num INTEGER NOT NULL,
+  due_date DATE NULL
 );
 
 --INSERT INTO competitions (competition_name, season, rounds) VALUES ('Winter League', '2019/20', 18);

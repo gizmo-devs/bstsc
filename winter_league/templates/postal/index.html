@@ -17,7 +17,7 @@
     <div class="card-header">
       <h2 class="display-5 float-left">{{competition.info.name}} <small>{{competition.info.season}}</small></h2>
       {% if g.user %}
-      <span class="float-right"><a class="btn btn-info float-right" href="{{url_for('competition.comp_edit', id=competition.info.id)}}">edit</a></span>
+      <span class="float-right"><a class="btn btn-info float-right" href="{{url_for('competition.comp_edit', comp_id=competition.info.id)}}">edit</a></span>
       {% endif %}
     </div>
     <div class="card-body">
@@ -50,11 +50,11 @@
 
                 {% for curr_round in range(num_of_rounds) %}
 
-                {% if date > competition.round_due_dates[loop.index0] and not person.scores[curr_round]%}
-                    {% set r_state = 'table-danger ' %}
-                {% else %}
-                    {% set r_state = '' %}
-                {% endif %}
+{#                 {% if date > competition.round_due_dates[loop.index0] and not person.scores[curr_round]%} #}
+ {#                    {% set r_state = 'table-danger ' %}#}
+{#                 {% else %}#}
+{#                     {% set r_state = '' %}#}
+                {# {% endif %}#}
 
 {#                if person.scores[curr_round] is defined #}
 {#                   for x in range(num_of_rounds) #}
