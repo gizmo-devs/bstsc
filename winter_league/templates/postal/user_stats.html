@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Stats{% endblock %}</h1>
+  {% if g.user.permission_level == "admin" %}
+<!--    <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>-->
+  {% endif %}
+<!--  <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>-->
+<!--  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>-->
+{% endblock %}
+
+{% block content %}
+<h2>{{user.first_name + " " + user.surname}}</h2>
+<canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script>
+    //var rounds = 0
+    //var results = []
+    $(document).ready(function(){
+        $.get("{{url_for('user.previous_round_results', user_id=user.id, rounds=12)}}", function(content, status){
+          if (status === 'success')
+            {
+                rounds = content.rounds;
+                results = content.results_arr;
+                var ctx = document.getElementById("myChart");
+                var myChart = new Chart(ctx, {
+                   type: 'line',
+                   data: {
+                      labels: rounds,
+                      datasets: [{
+                        data: results,
+                        lineTension: 0,
+                        backgroundColor: 'transparent',
+                        borderColor: '#007bff',
+                        borderWidth: 4,
+                        pointBackgroundColor: '#007bff'
+                      }]
+                    },
+                    options: {
+                      title: {
+                            display: true,
+                            text: 'Last ' + rounds.length + ' rounds'
+                        },
+                        scales: {
+                        yAxes: [{
+                          ticks: {
+                            beginAtZero: false
+                          }
+                        }]
+                      },
+                      legend: {
+                        display: false,
+                      }
+                    }
+                  });
+            }
+            else
+            {
+                alert("Dint get the desired response from {{url_for('user.previous_round_results', user_id=user.id, rounds=12)}}: " + content.rounds + "\nStatus is :- " + status);
+            }
+        });
+    });
+
+    </script>
+{% endblock %}

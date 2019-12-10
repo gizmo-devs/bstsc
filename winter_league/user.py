@@ -39,7 +39,6 @@ def specific_user(user_id):
 
 @bp.route("/create", methods=['GET', 'POST'])
 def create_user():
-
     if request.method == 'POST':
         #id = request.form['u_id']
         first_name = request.form['first_name']
@@ -53,3 +52,32 @@ def create_user():
         return redirect(url_for('user.home'))
     else:
         return render_template('postal/create_user.html', user_data=None)
+
+@bp.route("/<int:user_id>/stats", methods=['GET', 'POST'])
+def user_stats(user_id):
+    if request.method == 'GET':
+        user_details = query_db('SELECT * FROM user WHERE id = ?', (str(user_id)), one=True)
+        return render_template('postal/user_stats.html', user=user_details)
+
+
+@bp.route("/<int:user_id>/prev_results/<int:rounds>", methods=['GET', 'POST'])
+def previous_round_results(user_id, rounds=12):
+    data_set = query_db("""
+    SELECT 
+        result, first_name, surname
+    FROM
+        scores
+        JOIN user ON user.id = scores.user_id
+    WHERE user_id = ?
+    LIMIT ? 
+    """, (user_id, rounds))
+    results = []
+    for val in data_set:
+        results += [val['result']]
+    data = {
+        'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'],
+        'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)],
+        'results_arr':results
+    }
+    print(data)
+    return data
