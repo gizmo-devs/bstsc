@@ -14,7 +14,7 @@ bp = Blueprint('user', __name__, url_prefix='/user')
 def home():
     edit_button = "<button class='btn btn-info'>Edit</button>"
     df = pd.read_sql_query('SELECT id, first_name, surname, permission_level FROM user', get_db())
-    df.columns = ['id', 'First Name', 'Surname', 'Permission Level']
+    df.columns = ['ID', 'First Name', 'Surname', 'Permission Level']
     df['Edit'] = edit_button
     return render_template('postal/all_users.html',  tables=[df.to_html(classes='table results user', border=0, index=False, index_names=False, escape=False)], titles=df.columns.values)
 
@@ -57,11 +57,19 @@ def create_user():
 def user_stats(user_id):
     if request.method == 'GET':
         user_details = query_db('SELECT * FROM user WHERE id = ?', (str(user_id)), one=True)
-        return render_template('postal/user_stats.html', user=user_details)
+        fixed_avgs = query_db("""
+                SELECT 
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 6) AS six_cards,
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 12) AS twelve_cards,
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-28 days') AND date('now')) as four_weeks,
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
+            """, (str(user_id), str(user_id), str(user_id), str(user_id)), one=True)
+        return render_template('postal/user_stats.html', user=user_details, avgs=fixed_avgs)
 
 
 @bp.route("/<int:user_id>/prev_results/<int:rounds>", methods=['GET', 'POST'])
 def previous_round_results(user_id, rounds=12):
+
     data_set = query_db("""
     SELECT 
         result, first_name, surname
@@ -77,7 +85,7 @@ def previous_round_results(user_id, rounds=12):
     data = {
         'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'],
         'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)],
-        'results_arr':results
+        'results_arr':results,
+        'average' : [(sum(results) / len(results)) for avg in range(len(data_set))]
     }
-    print(data)
     return data

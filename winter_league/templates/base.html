@@ -24,6 +24,9 @@
     </li>
     {% if g.user.permission_level == "admin" %}
     <!-- Dropdown -->
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('user.home') }}">Users</a>
+    </li>
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
         Create
@@ -38,7 +41,9 @@
   </ul>
   <ul class="navbar-nav">
     {% if g.user %}
-    <span class="navbar-text">{{ g.user['username'] }}</span>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('user.user_stats', user_id=g.user['id']) }}" class="navbar-text">{{ g.user['username'] }}</a>
+    </li>
     <li class="nav-item">
       <a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
     </li>

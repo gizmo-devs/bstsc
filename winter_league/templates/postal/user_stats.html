@@ -12,6 +12,35 @@
 {% block content %}
 <h2>{{user.first_name + " " + user.surname}}</h2>
 <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+<h2>Current Averages</h2>
+<div class="row d-flex text-center mb-5">
+    <div class="card mx-2 flex-fill">
+      <div class="card-body">
+        <h4 class="card-title">6 Cards</h4>
+        <p class="card-text lead">{{avgs['six_cards']}}</p>
+      </div>
+    </div>
+    <div class="card mx-2 flex-fill">
+      <div class="card-body">
+        <h4 class="card-title">12 Cards</h4>
+        <p class="card-text lead">{{avgs['twelve_cards']}}</p>
+      </div>
+    </div>
+    <div class="card mx-2 flex-fill">
+      <div class="card-body">
+        <h4 class="card-title">4 Weeks</h4>
+        <p class="card-text lead">{{avgs['four_weeks']}}</p>
+      </div>
+    </div>
+    <div class="card mx-2 flex-fill">
+      <div class="card-body">
+        <h4 class="card-title">2 Months</h4>
+        <p class="card-text lead">{{avgs['two_months']}}</p>
+      </div>
+    </div>
+    </div>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 <script>
     //var rounds = 0
@@ -22,6 +51,8 @@
             {
                 rounds = content.rounds;
                 results = content.results_arr;
+                avg = content.average;
+                console.log(avg);
                 var ctx = document.getElementById("myChart");
                 var myChart = new Chart(ctx, {
                    type: 'line',
@@ -29,11 +60,18 @@
                       labels: rounds,
                       datasets: [{
                         data: results,
-                        lineTension: 0,
+                        lineTension: 0.2,
                         backgroundColor: 'transparent',
                         borderColor: '#007bff',
                         borderWidth: 4,
                         pointBackgroundColor: '#007bff'
+                      },
+                      { data: avg,
+                        lineTension: 0.2,
+                        backgroundColor: 'transparent',
+                        borderColor: '#20c997',
+                        borderWidth: 2
+                        //pointBackgroundColor: '#007bff'
                       }]
                     },
                     options: {

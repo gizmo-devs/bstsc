@@ -55,6 +55,11 @@ $(document).ready(function(){
         var u_id = row.children('td').first().html()
         window.location.href = ('/user/' + u_id)
     });
+    $('.user.table td').click(function(e) {
+        var row = $(this.closest('tr'))
+        var u_id = row.children('td').first().html()
+        window.location.href = ('/user/' + u_id + '/stats')
+    });
 
 //	//new_member = '<div class="form-group"><label for="Member">Member</label><select class="form-control member_selection" ><option selected disabled>Please Select</option><option>Craig</option><option>Mike</option><option>Dave</option></select></div>'
 //
