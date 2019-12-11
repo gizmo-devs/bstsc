@@ -27,7 +27,11 @@
         </div>
         <div class="form-group">
           <label for="permission_level">Access level:</label>
-          <input type="text" class="form-control" id="permission_level" name="permission_level" value="{{ user_data.permission_level }}">
+          <!--<input type="text" class="form-control" id="permission_level" name="permission_level" value="{{ user_data.permission_level }}">-->
+            <select class="form-control permission_level" id="permission_level" name="permission_level" {{'disabled' if not g.user.permission_level == "admin"}}>
+              <option value="user" {{'selected' if user_data.permission_level == 'user' or user_data.permission_level == 'None' }}>user</option>
+              <option value="admin" {{'selected' if user_data.permission_level == 'admin'}} {{'disabled' if not g.user.permission_level == "admin" else ''}}>admin</option>
+            </select>
         </div>
         <button class="btn btn-success" type="submit">Update</button>
     </form>

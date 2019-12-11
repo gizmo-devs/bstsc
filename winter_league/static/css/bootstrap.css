@@ -10063,4 +10063,11 @@ table.table.user thead tr, table.table.user td {
   padding: 15px;
   margin: 0 auto;
 }
+
+.user.table td:first-child {
+    text-decoration:underline;
+}
+.user.table td:first-child:hover {
+    cursor: pointer;
+}
 /*# sourceMappingURL=bootstrap.css.map */

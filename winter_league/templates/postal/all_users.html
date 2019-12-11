@@ -10,10 +10,7 @@
 {% endblock %}
 
 {% block content %}
-{% if g.user.permission_level == "admin" %}
-    <a class="action" href="{{ url_for('competition.comp_create') }}">Add User</a>
-{% endif %}
 {% for table in tables %}
-            {{ table|safe }}
+    {{ table|safe }}
 {% endfor %}
 {% endblock %}
