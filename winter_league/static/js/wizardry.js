@@ -55,7 +55,8 @@ $(document).ready(function(){
         var u_id = row.children('td').first().html()
         window.location.href = ('/user/' + u_id)
     });
-    $('.user.table td').click(function(e) {
+
+    $('.user.table td:first-child').click(function(e) {
         var row = $(this.closest('tr'))
         var u_id = row.children('td').first().html()
         window.location.href = ('/user/' + u_id + '/stats')

@@ -30,9 +30,10 @@ def specific_user(user_id):
         first_name = request.form['first_name']
         surname = request.form['surname']
         username = request.form['username']
-        sql = 'UPDATE user SET first_name=?, surname=?, username=? WHERE id = ?'
+        permission_level = request.form['permission_level']
+        sql = 'UPDATE user SET first_name=?, surname=?, username=?, permission_level=? WHERE id = ?'
         db = get_db()
-        db.execute(sql, [first_name, surname, username, user_id])
+        db.execute(sql, [first_name, surname, username, permission_level, user_id])
         db.commit()
         flash('{} {} has been updated.'.format(first_name, surname))
         return redirect(url_for('user.home'))
