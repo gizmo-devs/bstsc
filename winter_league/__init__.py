@@ -1,6 +1,5 @@
 import os
 from flask import Flask
-from jinja2 import Environment
 
 
 def create_app(test_config=None):
