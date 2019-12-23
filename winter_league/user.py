@@ -11,6 +11,7 @@ from . import team
 bp = Blueprint('user', __name__, url_prefix='/user')
 
 @bp.route("/")
+@login_required
 def home():
     edit_button = "<button class='btn btn-info'>Edit</button>"
     df = pd.read_sql_query('SELECT id, first_name, surname, permission_level FROM user', get_db())
@@ -19,6 +20,7 @@ def home():
     return render_template('postal/all_users.html',  tables=[df.to_html(classes='table results user', border=0, index=False, index_names=False, escape=False)], titles=df.columns.values)
 
 @bp.route("/<int:user_id>", methods=['GET', 'POST'])
+@login_required
 def specific_user(user_id):
     if request.method == 'GET':
         sql = 'SELECT * FROM user WHERE id = ?'
@@ -39,6 +41,7 @@ def specific_user(user_id):
         return redirect(url_for('user.home'))
 
 @bp.route("/create", methods=['GET', 'POST'])
+@login_required
 def create_user():
     if request.method == 'POST':
         #id = request.form['u_id']
@@ -55,6 +58,7 @@ def create_user():
         return render_template('postal/create_user.html', user_data=None)
 
 @bp.route("/<int:user_id>/stats", methods=['GET', 'POST'])
+@login_required
 def user_stats(user_id):
     if request.method == 'GET':
         user_details = query_db("SELECT * FROM user WHERE id = ?", [str(user_id)], one=True)
@@ -69,6 +73,7 @@ def user_stats(user_id):
 
 
 @bp.route("/<int:user_id>/prev_results/<int:rounds>", methods=['GET', 'POST'])
+@login_required
 def previous_round_results(user_id, rounds=12):
 
     data_set = query_db("""
