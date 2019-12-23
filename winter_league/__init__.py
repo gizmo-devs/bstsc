@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 
 
 def create_app(test_config=None):
@@ -28,6 +28,7 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
+
     from . import db
     db.init_app(app)
     from . import auth
@@ -39,8 +40,20 @@ def create_app(test_config=None):
     from . import user
     app.register_blueprint(user.bp)
 
+
     app.add_url_rule('/', endpoint='index')
 
+    # App Errors
+    def page_not_found(e):
+        # note that we set the 404 status explicitly
+        return render_template('e_404.html'), 404
+
+    def internal_server_error(e):
+        # note that we set the 404 status explicitly
+        return render_template('e_500.html', error=e), 500
+
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(500, internal_server_error)
 
     return app
 
