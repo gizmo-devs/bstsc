@@ -57,14 +57,14 @@ def create_user():
 @bp.route("/<int:user_id>/stats", methods=['GET', 'POST'])
 def user_stats(user_id):
     if request.method == 'GET':
-        user_details = query_db('SELECT * FROM user WHERE id = ?', (str(user_id)), one=True)
+        user_details = query_db("SELECT * FROM user WHERE id = ?", [str(user_id)], one=True)
         fixed_avgs = query_db("""
                 SELECT 
                     (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 6) AS six_cards,
                     (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 12) AS twelve_cards,
                     (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-28 days') AND date('now')) as four_weeks,
                     (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
-            """, (str(user_id), str(user_id), str(user_id), str(user_id)), one=True)
+            """, [str(user_id), str(user_id), str(user_id), str(user_id)], one=True)
         return render_template('postal/user_stats.html', user=user_details, avgs=fixed_avgs)
 
 
