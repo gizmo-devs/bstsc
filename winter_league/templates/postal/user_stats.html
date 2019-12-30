@@ -64,17 +64,25 @@
                         backgroundColor: 'transparent',
                         borderColor: '#007bff',
                         borderWidth: 4,
-                        pointBackgroundColor: '#007bff'
+                        pointBackgroundColor: '#007bff',
+                        label: 'Scores recorded'
                       },
                       { data: avg,
                         lineTension: 0.2,
                         backgroundColor: 'transparent',
                         borderColor: '#20c997',
-                        borderWidth: 2
+                        borderWidth: 4,
+                        pointRadius: 0,
+                        label: 'Average'
                         //pointBackgroundColor: '#007bff'
                       }]
                     },
                     options: {
+                      layout: {
+                        padding: {
+                            top: 10
+                        }
+                      },
                       title: {
                             display: true,
                             text: 'Last ' + rounds.length + ' rounds'
@@ -82,12 +90,16 @@
                         scales: {
                         yAxes: [{
                           ticks: {
-                            beginAtZero: false
+                            beginAtZero: false,
+                            stepSize: 1,
+                            max: Math.max.apply(null, results) + 1, //max value + 1
+                            min: Math.min.apply(null, results) - 1, //max value + 1
                           }
                         }]
                       },
                       legend: {
-                        display: false,
+                        display: true,
+                        position: 'bottom'
                       }
                     }
                   });
