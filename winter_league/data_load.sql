@@ -20,8 +20,9 @@
 --INSERT INTO user (first_name, surname, username) VALUES ('Trevor', 'Teed', 'tteed'), ('Steve', 'Pearcey', 'spearcey'), ('Tony', 'Crownhurst', 'tcrownhurst'), ('Rob', 'Sampson', 'rsampson'), ('Jonathon', 'Pratt', 'jpratt'), ('Margery', 'Teed', 'mteed')
 --INSERT INTO user (first_name, surname, username) VALUES ('Mike', 'Lemon', 'mlemon'), ('Dave', 'Lemon', 'dlemon'), ('Ian', 'Bisson', 'ibisson'), ('Simon', 'Teed', 'steed')
 
-
+--======================================
 -- UPDATE 001 :: 05 Dec 2019 - Add new table and insert Data for competition 1
+--======================================
 --drop table if exists rounds;
 --create table rounds (
 --  id integer primary key autoincrement,
@@ -50,12 +51,28 @@
 --(1,	16,	'2020-02-10'),
 --(1,	17,	'2020-02-17'),
 --(1,	18,	'2020-02-24')
+--======================================
 -- END OF UPDATE 001
+--======================================
 
+--======================================
 -- START OF UPDATE 002
-ALTER TABLE scores
-ADD compTeam_id INTEGER;
+--======================================
 
-UPDATE scores set compTeam_id=1 where user_id in (3, 2, 1, 4, 5);
-UPDATE scores set compTeam_id=2 where user_id in (7, 8, 10, 11, 12, 9);
+--ALTER TABLE scores
+--ADD compTeam_id INTEGER;
+--
+--UPDATE scores set compTeam_id=1 where user_id in (3, 2, 1, 4, 5);
+--UPDATE scores set compTeam_id=2 where user_id in (7, 8, 10, 11, 12, 9);
+
+--======================================
 -- END OF UPDATE 002
+--======================================
+
+--======================================
+-- START OF UPDATE 003
+--======================================
+ALTER TABLE teamMembers ADD submitted_avg DECIMAL;
+--======================================
+-- START OF UPDATE 003
+--======================================
