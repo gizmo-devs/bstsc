@@ -26,6 +26,7 @@
                 <tr>
                   <th>#</th>
                   <th>Member</th>
+                  <th>Submitted Avg</th>
                 </tr>
               </thead>
               <tbody>
@@ -33,6 +34,7 @@
                 <tr>
                   <td>{{loop.index}}</td>
                   <td>{{user['first_name']}} {{user['surname']}}</td>
+                  <td>{{user['submitted_avg'] if user['submitted_avg'] not in ['None', '', None] else '-'}}</td>
                 </tr>
                 {% endfor %}
               </tbody>

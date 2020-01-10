@@ -49,18 +49,24 @@
         {% for member in team_details %}
         {% if member.id %}
         <div id="members">
-            <label for="Member">Member</label>
-            <div class="input-group">
-<!--                <select class="form-control member_selection" id="Member" name="member_selection">-->
-<!--                  <option value="" selected disabled>Please Select</option>-->
-<!--                  {% for user in users %}-->
-<!--                    <option value="{{user['id']|safe}}" {{ 'Selected' if user.id == member.id}} >{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>-->
-<!--                  {% endfor %}-->
-<!--                </select>-->
-              <input class="form-control" type="text" value="{{member.first_name}} {{member.surname}}" />
-                <div class="input-group-append">
-                    <a href="{{url_for('team.remove_member', uid=member.id, tid=team_details[0].team_id)}}" class="btn btn-danger">Remove</a>
-                </div>
+            <div class="form-row">
+            <div class="form-group col-md-8">
+                <label for="Member">Member</label>
+                <input class="form-control" type="text" value="{{member.first_name}} {{member.surname}}">
+            </div>
+              <div class="form-group col-md-2">
+                <label for="avg">Submitted Average</label>
+                  <div class="input-group">
+                  <input class="form-control round_input_field" id="avg" value="{{member.submitted_avg}}" type="number" step="0.01" onChange="show_save(this)">
+                  <div class="input-group-append d-none fade">
+                      <button class="btn btn-outline-secondary avg_save_btn" type="button" data-team-id="{{member.team_id}}" data-tm-id="{{member.tm_id}}">Save</button>
+                  </div>
+              </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label>Action</label><br>
+                <a href="{{url_for('team.remove_member', uid=member.id, tid=team_details[0].team_id)}}" class="btn btn-danger btn-block">Remove</a>
+            </div>
             </div>
         </div>
         {% endif %}
@@ -83,12 +89,19 @@
       <form method="post" action="{{url_for('team.add_member', tid=team_details[0].team_id )}}">
       <div class="modal-body">
         <input type="hidden" name="tid" value="{{team_details[0].id}}"/>
-        <select class="form-control member_selection" id="Member" name="member_selection">
+        <div class="form-group">
+            <label for="Member">Choose Memeber</label>
+          <select class="form-control member_selection" id="Member" name="member_selection">
           <option value="" selected disabled>Please Select</option>
           {% for user in users %}
             <option value="{{user['id']|safe}}">{{ user['first_name']|safe }} {{ user['surname']|safe}}</option>
           {% endfor %}
         </select>
+        </div>
+          <div class="form-group">
+            <label for="SubAvg">Submitted Average</label>
+            <input type="number" class="form-control" name="sub_avg" id="SubAvg" placeholder="Enter Starting Average">
+          </div>
       </div>
 
       <!-- Modal footer -->
@@ -100,6 +113,39 @@
     </div>
   </div>
 </div>
+
+<script>
+        function show_save(input) {
+            $(input).toggleClass('round_input_field ');
+            $(input).next().toggleClass('d-none show');
+            return
+        }
+        $('.avg_save_btn').click(function(){
+            var btn = $(this).html('<span class="spinner-grow text-muted"></span>')
+            var team_id = btn.data('team-id');
+            var tm_id = btn.data('tm-id');
+            var ch_avg = btn.parent().siblings('input').val();
+            var get_url = '/teams/edit/'+ team_id +'/avg_ud/' + tm_id
+            $.ajax({
+                url: get_url,
+                type: 'GET',
+                data: {
+                    avg: ch_avg
+                },
+                success: function(r){
+                    response_handler(r, btn)
+                }
+            })
+        })
+        function response_handler(val, btn){
+            if (val == '{ status : success}') {
+                btn.html('<span class="fa fa-check"></span>');
+            } else {
+                btn.html('<span class="fa fa-close"></span>');
+            }
+
+        }
+</script>
 {% else %}
   No Details provided
 {% endif %}

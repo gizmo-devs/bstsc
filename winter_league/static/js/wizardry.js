@@ -5,7 +5,7 @@ $(document).ready(function(){
         var shooter_name  = $(this).attr('data-name');
         $('#round_header_num').text($(this).attr('data-round'));
         console.log(score_id)
-        if (score_id!='None') {
+        if (score_id!=('None','')) {
             $.get("/round_result/" + score_id, function(data) {
                 console.log(data);
                 var round = data.round;
@@ -22,6 +22,9 @@ $(document).ready(function(){
             var u_id = $(this).attr('data-user-id');
             var c_id = $(this).attr('data-comp-id');
             var round = $(this).attr('data-round');
+            var compTeam_id = $(this).attr('data-uteam-id');
+
+            $('#compTeam_id').val(compTeam_id);
             $('#competition_id').val(c_id);
             $('#user_id').val(u_id);
             $('#shooter_name').val(shooter_name);
