@@ -10088,5 +10088,9 @@ body {
   background-color: #f5f5f5;
 }
 
+.round_input_field {
+    border-radius: .25rem !important;
+}
+
 
 /*# sourceMappingURL=bootstrap.css.map */

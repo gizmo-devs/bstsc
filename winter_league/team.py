@@ -21,7 +21,7 @@ def index():
 
     for team in teams:
         users = db.execute(
-            'SELECT user.id, user.first_name, user.surname'
+            'SELECT user.id, user.first_name, user.surname, teamMembers.submitted_avg'
             ' FROM user'
             ' join teamMembers ON user_id=user.id'
             ' AND team_id=' + str(team['id'])
@@ -93,9 +93,11 @@ def team_edit(id):
             'team.id as team_id'
             ', team.team_name'
             ', team.team_size'
-            ', team.season, '
-            'teamMembers.user_id'
+            ', team.season '
+            ', teamMembers.id as tm_id'
+            ', teamMembers.user_id'
             ', teamMembers.team_id'
+            ', teamMembers.submitted_avg'
             ', user.id'
             ', user.first_name'
             ', user.surname '
@@ -106,6 +108,7 @@ def team_edit(id):
             ' on teamMembers.user_id = user.id'
             ' WHERE team.id =' + str(id)
         ).fetchall()
+
     return render_template('postal/edit_team.html', team_details=team_details, users=users)
 
 # @bp.route('/del')
@@ -174,12 +177,24 @@ def remove_member(uid, tid):
 @bp.route('/edit/<int:tid>/add_member', methods=('GET', 'POST'))
 def add_member(tid):
     uid = request.form['member_selection']
+    avg = request.form['sub_avg']
     db = get_db()
     db.execute(
-            'INSERT INTO teamMembers (user_id, team_id) VALUES(?, ?)', (uid, tid)
+            'INSERT INTO teamMembers (user_id, team_id, submitted_avg) VALUES(?, ?, ?)', (uid, tid, avg)
         )
     db.commit()
     return redirect(url_for('team.team_edit', id=tid))
+
+
+@bp.route('/edit/<int:tid>/avg_ud/<int:tm_id>', methods=['GET'])
+def member_avg_ud(tid, tm_id):
+    avg = request.args.get('avg');
+    db = get_db()
+    db.execute(
+            'UPDATE teamMembers SET submitted_avg=? WHERE id=?', (avg, tm_id)
+        )
+    db.commit()
+    return '{ status : success}'
 
 
 def get_members(team_id):
