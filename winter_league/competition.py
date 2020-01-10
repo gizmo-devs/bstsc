@@ -223,14 +223,14 @@ def collect_scores(comp_id):
     for t in get_competition_teams(comp_id):
         #print("Team ID", t)
         current_team = {}
-        current_team.update({'team_id': t['team_id'], "team_name": t['team_name'], "shooters": {}})
+        current_team.update({'team_id': t['team_id'], "u_team_id": t['compTeam_id'], "team_name": t['team_name'], "shooters": {}})
         team_results = []
         for team_member in team.get_members(t['team_id']):
             #print(team_member)
             member_results = {}
             member_results['user_id'] = team_member['user_id']
             member_results['name'] = team_member['first_name'] + ' ' + team_member['surname']
-            shooter_results = get_compeitors_scores(comp_id, team_member['user_id'])
+            shooter_results = get_compeitors_scores(comp_id, team_member['user_id'], t['team_id'])
             scores = []
             for row in shooter_results:
                 scores += [{
@@ -250,38 +250,47 @@ def collect_scores(comp_id):
 @bp.route("/data/comp_teams/<comp_id>")
 def get_competition_teams(comp_id):
     teams_in_comp = query_db(
-        'SELECT team_id, team_name from compTeam '
+        'SELECT compTeam.id as compTeam_id, team_id, team_name from compTeam '
         ' JOIN team ON team.id = compTeam.team_id'
         ' WHERE compTeam.competition_id=?', str(comp_id)
     )
     return teams_in_comp
 
 
-def get_compeitors_scores(comp_id, user_id):
+def get_compeitors_scores(comp_id, user_id, team_id):
     user_results = query_db(
-        """SELECT 
---rounds.*
+        """
+        SELECT 
+-- rounds
 rounds.comp_id
 , rounds.num
---, compTeam.team_id
+-- compTeam
+, compTeam.team_id
 , compTeam.competition_id
+-- teamMembers
 , teamMembers.user_id
+-- Scores
 , scores.id as score_id
 , scores.round
 , scores.estimated
 , scores.result
 , scores.completed
+, scores.compTeam_id
 FROM rounds
-left JOIN compTeam 
+LEFT JOIN compTeam 
     ON compTeam.competition_id = rounds.comp_id
-left JOIN teamMembers
+LEFT JOIN teamMembers
     ON teamMembers.team_id = compTeam.team_id
 LEFT JOIN scores
     ON scores.competition_id = rounds.comp_id
+    AND scores.compTeam_id = compTeam.id
         AND teamMembers.user_id = scores.user_id
         AND rounds.num = scores.round
-WHERE rounds.comp_id=?
-     AND teamMembers.user_id=?""", [comp_id, user_id]
+WHERE 
+    rounds.comp_id=?
+        AND teamMembers.user_id=?
+        AND teamMembers.team_id=?;
+        """, [comp_id, user_id, team_id]
     )
 
 
@@ -323,20 +332,21 @@ def result_save():
         score_id = request.form['score_id']
         comp_id = request.form['competition_id']
         user_id = request.form['user_id']
+        compTeam_id = request.form['compTeam_id']
 
         est = request.form['estimated']
         res = request.form['actual']
         completed = request.form['date_shot']
         round = request.form['round']
         if request.form['score_id'] in [None, "", 0]:
-            sql = "INSERT INTO scores (user_id, competition_id, completed, estimated, result, round) VALUES (?,?,?,?,?,?)"
-            params = (user_id, comp_id, completed, est, res, round)
+            sql = "INSERT INTO scores (user_id, competition_id, completed, estimated, result, round, compTeam_id) VALUES (?,?,?,?,?,?,?)"
+            params = (user_id, comp_id, completed, est, res, round, compTeam_id)
         else:
-            sql = "UPDATE scores SET user_id=?, competition_id=?, completed=?, estimated=?, result=?, round=? WHERE id=?"
-            params = (user_id, comp_id, completed, est, res, round, score_id)
+            sql = "UPDATE scores SET user_id=?, competition_id=?, completed=?, estimated=?, result=?, round=?, compTeam_id=? WHERE id=?"
+            params = (user_id, comp_id, completed, est, res, round, score_id, compTeam_id)
 
 
-        #print(sql, params)
+        print(sql, params)
         db.execute(sql, params)
         db.commit()
         flash("Record added to the Database")
@@ -347,7 +357,7 @@ def result(id=0):
     if request.method == 'GET':
         print(id)
         record_data = query_db(
-            'SELECT user_id, competition_id, completed, estimated, result, round '
+            'SELECT user_id, competition_id, completed, estimated, result, round, compTeam_id '
             'FROM scores '
             'WHERE id = ?', [str(id)], one=True
         )
@@ -359,7 +369,8 @@ def result(id=0):
                 "completed": record_data['completed'],
                 "estimated": record_data['estimated'],
                 "result": record_data['result'],
-                "round": record_data['round']
+                "round": record_data['round'],
+                "compTeam_id" : record_data['compTeam_id']
             }
         return jsonify(res_dict)
 

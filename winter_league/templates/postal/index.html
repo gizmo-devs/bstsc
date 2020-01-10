@@ -46,7 +46,8 @@
           <tbody>
             {% for person in team.shooters %}
               <tr>
-                <th scope="row">{{person.name}}</th>
+                <th scope="row">{{person.name}}<br>
+                </th>
 
                 {% for curr_round in range(num_of_rounds) %}
 
@@ -65,12 +66,13 @@
 {#                  endfor #}
 {#                endif #}
 {#                    {{curr_round }} = {{ person.scores[curr_round].round if person.scores[curr_round] is defined else 0 }}, #}
-                  {% if person.scores[curr_round] %}
-                <td class="{{r_state}}record" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}">
+
+                  {% if person.scores[curr_round].score_id != None %}
+                <td class="{{r_state}}record text-success" data-round="{{loop.index}}" data-name="{{person.name}}" data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}" data-uteam-id="{{team.u_team_id}}">
                   {{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}
                 </td>
                   {% else %}
-                <td class="{{r_state}}record text-muted" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="">0</td>
+                <td class="{{r_state}}record text-muted" data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}" data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id="" data-uteam-id="{{team.u_team_id}}">0</td>
                   {% endif%}
                 {% endfor %}
                 <td>{{person.scores | sum(attribute='actual')}}</td>
@@ -110,6 +112,8 @@
           <input class="form-control" type="text" name="user_id" id="user_id" value=""/>
           <label for="round">Round #:</label>
           <input class="form-control" type="text" name="round" id="round" value=""/>
+          <label for="compTeam_id">Unique Team ID:</label>
+          <input class="form-control" type="text" name="compTeam_id" id="compTeam_id" value=""/>
         </div>
         <div class="form-group">
           <label for="shooter_name">Shooter Name:</label>
