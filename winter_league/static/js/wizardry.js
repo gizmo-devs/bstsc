@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('.record').click(function() {
+    $('.updateable').click(function() {
         clear_score_form();
         var score_id = $(this).attr('data-shot-id').toString();
         var shooter_name  = $(this).attr('data-name');
