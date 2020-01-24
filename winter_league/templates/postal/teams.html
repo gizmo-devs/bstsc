@@ -44,7 +44,7 @@
                     {% endif %}
                   </td>
                   <td>
-                    {% if user_avg[0] %}
+                    {% if user_avg[0] not in ['None', '', None] %}
                       {{ user_avg[0] }} <span class="pull-right {{'fa fa-caret-up text-success' if user['submitted_avg'] < user_avg|int else 'fa fa-caret-down text-danger'}}"></span>
                     {% else %}
                       -
