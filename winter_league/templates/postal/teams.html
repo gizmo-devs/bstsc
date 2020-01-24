@@ -27,14 +27,17 @@
                   <th>#</th>
                   <th>Member</th>
                   <th>Submitted Avg</th>
+                  <th>Current Average</th>
                 </tr>
               </thead>
               <tbody>
                 {% for user in team['members'] %}
+                {% set user_avg = team.avgs|selectattr('user_id', 'equalto', user.id) | map(attribute='curr_avg') | list %}
                 <tr>
                   <td>{{loop.index}}</td>
                   <td>{{user['first_name']}} {{user['surname']}}</td>
                   <td>{{user['submitted_avg'] if user['submitted_avg'] not in ['None', '', None] else '-'}}</td>
+                  <td>{{ user_avg[0] }} <span class="pull-right {{'fa fa-caret-up text-success' if user['submitted_avg'] < user_avg|int else 'fa fa-caret-down text-danger'}}"></span></td>
                 </tr>
                 {% endfor %}
               </tbody>
