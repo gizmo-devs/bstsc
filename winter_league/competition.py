@@ -362,7 +362,6 @@ def competition_due_dates():
     if request.method == "POST":
         comp_id = request.form['comp_sel']
         comp_details = query_db("SELECT num, due_date FROM rounds WHERE comp_id=?", [comp_id])
-        print comp_details# get details of competiton
 
     return render_template('postal/comp_due_dates.html', comp_list=comps, comp_details=comp_details, today=curr_date)
 
