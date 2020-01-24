@@ -20,18 +20,22 @@ def index():
     teamData = []
 
     for team in teams:
-        users = db.execute(
+        users = query_db(
             'SELECT user.id, user.first_name, user.surname, teamMembers.submitted_avg'
             ' FROM user'
             ' join teamMembers ON user_id=user.id'
-            ' AND team_id=' + str(team['id'])
-        ).fetchall()
+            ' AND team_id=?', [str(team['id'])])
         active_comps = query_db(
             'SELECT competition_name FROM competitions WHERE id IN '
             '(SELECT competition_id FROM compTeam WHERE team_id=?)', str(team['id'])
         )
+        avgs = query_db("""SELECT printf("%.1f", avg(result)) as curr_avg, user_id, competition_id FROM scores
+        group by user_id
+        having user_id in (select user_id from teamMembers where team_id=?);""", [team['id']])
+
         teaminfo = {
             "details" : team,
+            "avgs" : avgs,
             "active_comps" : active_comps,
             "members" : users
         }
