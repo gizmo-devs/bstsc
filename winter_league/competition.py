@@ -292,27 +292,6 @@ WHERE
         AND teamMembers.team_id=?;
         """, [comp_id, user_id, team_id]
     )
-
-
-
-    # WORKING COPY -- SQL
-
-    # user_results = query_db(
-    #     'SELECT competitions.id as comp_id'
-    #     ' , compTeam.team_id as team_id'
-    #     ' , teamMembers.user_id'
-    #     ' , scores.id as score_id'
-    #     ' , scores.round'
-    #     ' , scores.estimated'
-    #     ' , scores.result'
-    #     ' FROM competitions'
-    #     ' join compTeam on competitions.id = compTeam.competition_id'
-    #     ' join teamMembers on compTeam.team_id = teamMembers.team_id'
-    #     ' join user on teamMembers.user_id = user.id'
-    #     ' join scores on teamMembers.user_id = scores.user_id AND compTeam.competition_id = scores.competition_id'
-    #     ' WHERE scores.competition_id=?'
-    #     ' AND teamMembers.user_id = ?', [comp_id, user_id]
-    # )
     return user_results
 
 
@@ -373,4 +352,18 @@ def result(id=0):
                 "compTeam_id" : record_data['compTeam_id']
             }
         return jsonify(res_dict)
+
+@bp.route("/competition/due_dates", methods=['GET', 'POST'])
+#@bp.route("/competition/due_dates/<int:comp_id>")
+def competition_due_dates():
+    comp_details = None
+    curr_date = datetime.date.today()
+    comps = query_db("SELECT id, competition_name FROM competitions",[])
+    if request.method == "POST":
+        comp_id = request.form['comp_sel']
+        comp_details = query_db("SELECT num, due_date FROM rounds WHERE comp_id=?", [comp_id])
+        print comp_details# get details of competiton
+
+    return render_template('postal/comp_due_dates.html', comp_list=comps, comp_details=comp_details, today=curr_date)
+
 

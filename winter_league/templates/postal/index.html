@@ -16,9 +16,12 @@
   <div class="card mt-2">
     <div class="card-header">
       <h2 class="display-5 float-left">{{competition.info.name}} <small>{{competition.info.season}}</small></h2>
-      {% if g.user %}
-      <span class="float-right"><a class="btn btn-info float-right" href="{{url_for('competition.comp_edit', comp_id=competition.info.id)}}">edit</a></span>
+      <div class="float-right">
+          <a class="btn btn-info" href="{{url_for('competition.competition_due_dates')}}">Round Dates</a>
+        {% if g.user %}
+      <a class="btn btn-info" href="{{url_for('competition.comp_edit', comp_id=competition.info.id)}}">edit</a>
       {% endif %}
+          </div>
     </div>
     <div class="card-body">
       {% for team in competition.teams%}
