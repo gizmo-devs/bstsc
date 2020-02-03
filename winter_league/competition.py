@@ -322,7 +322,7 @@ def result_save():
             params = (user_id, comp_id, completed, est, res, round, compTeam_id)
         else:
             sql = "UPDATE scores SET user_id=?, competition_id=?, completed=?, estimated=?, result=?, round=?, compTeam_id=? WHERE id=?"
-            params = (user_id, comp_id, completed, est, res, round, score_id, compTeam_id)
+            params = (user_id, comp_id, completed, est, res, round, compTeam_id, score_id)
 
 
         print(sql, params)

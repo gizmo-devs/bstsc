@@ -12,6 +12,7 @@ $(document).ready(function(){
                 $('#score_id').val(score_id);
                 $('#competition_id').val(data.competition_id);
                 $('#user_id').val(data.user_id);
+                $('#compTeam_id').val(data.compTeam_id);
                 $('#shooter_name').val(shooter_name);
                 $('#estimated').val(data.estimated);
                 $('#round').val(data.round);
