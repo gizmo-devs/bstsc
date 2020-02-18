@@ -10092,5 +10092,11 @@ body {
     border-radius: .25rem !important;
 }
 
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 50vh;
+  width: 80vw;
+}
 
 /*# sourceMappingURL=bootstrap.css.map */
