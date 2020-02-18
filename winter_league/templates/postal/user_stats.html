@@ -11,7 +11,9 @@
 
 {% block content %}
 <h2>{{user.first_name + " " + user.surname}}</h2>
-<canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+<div class="chart-container my-2">
+    <canvas class="" id="myChart"></canvas>
+</div>
 <h2>Current Averages</h2>
 <div class="row d-flex text-center mb-5">
     <div class="card mx-2 flex-fill">
@@ -55,6 +57,7 @@
                 console.log(avg);
                 var ctx = document.getElementById("myChart");
                 var myChart = new Chart(ctx, {
+                   // height: 380,
                    type: 'line',
                    data: {
                       labels: rounds,
@@ -78,6 +81,8 @@
                       }]
                     },
                     options: {
+                        maintainAspectRatio: false,
+                      // responsive: true,
                       layout: {
                         padding: {
                             top: 10
