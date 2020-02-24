@@ -47,7 +47,7 @@
                     {% if user_avg[0] in ['None', '', None] or user['submitted_avg'] in ['None', '', None] %}
                       -
                     {% else %}
-                      {{ user_avg[0] }} <span class="pull-right {{'fa fa-caret-up text-success' if user['submitted_avg'] < user_avg[0] else 'fa fa-caret-down text-danger'}}"></span>
+                      {{ user_avg[0] }} <span class="pull-right {{'fa fa-caret-up text-success' if user['submitted_avg'] < '%0.2f'|format(user_avg[0]|float) else 'fa fa-caret-down text-danger'}}"></span>
                     {% endif %}
                   </td>
                 </tr>
