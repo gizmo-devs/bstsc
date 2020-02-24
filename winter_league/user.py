@@ -64,8 +64,8 @@ def user_stats(user_id):
         user_details = query_db("SELECT * FROM user WHERE id = ?", [str(user_id)], one=True)
         fixed_avgs = query_db("""
                 SELECT 
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 6) AS six_cards,
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? LIMIT 12) AS twelve_cards,
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 6) AS six_cards,
+                    (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 12) AS twelve_cards,
                     (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-28 days') AND date('now')) as four_weeks,
                     (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
             """, [str(user_id), str(user_id), str(user_id), str(user_id)], one=True)
@@ -83,6 +83,7 @@ def previous_round_results(user_id, rounds=12):
         scores
         JOIN user ON user.id = scores.user_id
     WHERE user_id = ?
+    ORDER BY scores.completed DESC 
     LIMIT ? 
     """, (user_id, rounds))
     results = []
