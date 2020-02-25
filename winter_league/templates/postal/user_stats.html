@@ -11,6 +11,14 @@
 
 {% block content %}
 <h2>{{user.first_name + " " + user.surname}}</h2>
+<form method="post">
+    <select name="sel_stats" class="custom-select" onchange="this.form.submit()">
+    <option {{'selected' if graph_data.comp_id|int == 0}} value="0">Last 12 cards</option>
+        {% for comp in user_comps %}
+        <option {{'selected' if graph_data.comp_id|int == comp.id|int}} value="{{comp.id}}">{{comp.name}}</option>
+        {% endfor %}
+    </select>
+</form>
 <div class="chart-container my-2">
     <canvas class="" id="myChart"></canvas>
 </div>
@@ -46,15 +54,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 <script>
     //var rounds = 0
-    //var results = []
+    //var graph_data = JSON.parse({{graph_data}})
     $(document).ready(function(){
-        $.get("{{url_for('user.previous_round_results', user_id=user.id, rounds=12)}}", function(content, status){
-          if (status === 'success')
-            {
-                rounds = content.rounds;
-                results = content.results_arr;
-                avg = content.average;
+                var rounds = {{graph_data.rounds}};
+                var results = {{graph_data.results_arr}};
+                var avg = {{graph_data.average}};
                 console.log(avg);
+
                 var ctx = document.getElementById("myChart");
                 var myChart = new Chart(ctx, {
                    // height: 380,
@@ -68,7 +74,7 @@
                         borderColor: '#007bff',
                         borderWidth: 4,
                         pointBackgroundColor: '#007bff',
-                        label: 'Scores recorded'
+                        label: 'Score recorded'
                       },
                       { data: avg,
                         lineTension: 0.2,
@@ -108,12 +114,6 @@
                       }
                     }
                   });
-            }
-            else
-            {
-                alert("Dint get the desired response from {{url_for('user.previous_round_results', user_id=user.id, rounds=12)}}: " + content.rounds + "\nStatus is :- " + status);
-            }
-        });
     });
 
     </script>

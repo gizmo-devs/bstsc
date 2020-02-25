@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 import pandas as pd
 from werkzeug.exceptions import abort
@@ -57,25 +57,41 @@ def create_user():
     else:
         return render_template('postal/create_user.html', user_data=None)
 
+
 @bp.route("/<int:user_id>/stats", methods=['GET', 'POST'])
 @login_required
 def user_stats(user_id):
+    sel_options = query_db("""SELECT compTeam.competition_id as id
+         , competition_name as name
+        FROM teamMembers
+            JOIN compTeam 
+                ON compTeam.team_id = teamMembers.team_id
+            JOIN competitions 
+                ON compTeam.competition_id = competitions.id
+        WHERE user_id = ?""", [str(user_id)])
+    user_details = query_db("SELECT * FROM user WHERE id = ?", [str(user_id)], one=True)
+    fixed_avgs = query_db("""
+        SELECT 
+            (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 6) AS six_cards,
+            (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 12) AS twelve_cards,
+            (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-28 days') AND date('now')) as four_weeks,
+            (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
+        """, [str(user_id), str(user_id), str(user_id), str(user_id)], one=True)
     if request.method == 'GET':
-        user_details = query_db("SELECT * FROM user WHERE id = ?", [str(user_id)], one=True)
-        fixed_avgs = query_db("""
-                SELECT 
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 6) AS six_cards,
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? ORDER BY scores.completed DESC LIMIT 12) AS twelve_cards,
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-28 days') AND date('now')) as four_weeks,
-                    (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
-            """, [str(user_id), str(user_id), str(user_id), str(user_id)], one=True)
-        return render_template('postal/user_stats.html', user=user_details, avgs=fixed_avgs)
+        graph_data = previous_round_results(user_id=user_id, rounds=12)
+    else:
+        comp_id = request.form['sel_stats']
+        if comp_id == "0":
+            graph_data = previous_round_results(user_id=user_id, rounds=12)
+        else:
+            graph_data = user_comp_stats(user_id=user_id, comp_id=comp_id)
+    return render_template('postal/user_stats.html', user=user_details, avgs=fixed_avgs, user_comps=sel_options, graph_data=graph_data)
 
 
 @bp.route("/<int:user_id>/prev_results/<int:rounds>", methods=['GET', 'POST'])
 @login_required
 def previous_round_results(user_id, rounds=12):
-
+    print("user_id", user_id)
     data_set = query_db("""
     SELECT 
         result, first_name, surname
@@ -83,16 +99,44 @@ def previous_round_results(user_id, rounds=12):
         scores
         JOIN user ON user.id = scores.user_id
     WHERE user_id = ?
-    ORDER BY scores.completed DESC 
+    --ORDER BY scores.completed DESC 
     LIMIT ? 
     """, (user_id, rounds))
     results = []
     for val in data_set:
         results += [val['result']]
     data = {
+        'comp_id': 0,
         'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'],
         'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)],
         'results_arr':results,
         'average' : [(sum(results) / len(results)) for avg in range(len(data_set))]
+    }
+    return data
+
+
+@bp.route("/<int:user_id>/stats/<int:comp_id>", methods=['GET', 'POST'])
+@login_required
+def user_comp_stats(user_id, comp_id):
+    print("user_id", user_id, "comp_id", comp_id)
+    data_set = query_db("""
+        SELECT 
+            result, first_name, surname
+        FROM
+            scores
+            JOIN user 
+                ON user.id = scores.user_id      
+            WHERE user_id=? AND competition_id=?
+        order by round
+        """, (user_id, comp_id))
+    results = []
+    for val in data_set:
+        results += [val['result']]
+    data = {
+        'comp_id': comp_id,
+        'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'],
+        'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)],
+        'results_arr': results,
+        'average': [(sum(results) / len(results)) for avg in range(len(data_set))]
     }
     return data
