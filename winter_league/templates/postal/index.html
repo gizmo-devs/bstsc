@@ -147,11 +147,15 @@
 </div>
 <script>
   $(function(){
-    //$('#date_shot').datepicker();
-    $('#date_shot').datepicker({
-      "setDate": $('#date_shot').val(),
-      dateFormat: 'yy-mm-dd',
-    });
+        //$('#date_shot').datepicker();
+        $('#date_shot').datepicker({
+            "setDate": $('#date_shot').val(),
+            dateFormat: 'yy-mm-dd',
+        });
+        $('#date_shot').on('click', function(e) {
+            e.preventDefault();
+            $(this).attr("autocomplete", "off");
+        });
   });
 </script>
 {% endblock %}
