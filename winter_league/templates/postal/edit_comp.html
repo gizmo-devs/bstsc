@@ -110,6 +110,10 @@
       });
     });
     $('.round_due').datepicker(["setDate", $(this).val()],["option", "dateFormat", 'yy-mm-dd']);
+    $('.round_due').on('click', function(e) {
+            e.preventDefault();
+            $(this).attr("autocomplete", "off");
+    });
   });
 </script>
 {% endblock %}
