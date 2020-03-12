@@ -334,7 +334,7 @@ def result_save():
         db.execute(sql, params)
         db.commit()
         flash("Record added to the Database")
-        return redirect(url_for('competition.index'))
+        return redirect(url_for('competition.index', _anchor=compTeam_id))
 
 @bp.route("/round_result/<int:id>", methods=['GET'])
 def result(id=0):
