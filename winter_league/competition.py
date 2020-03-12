@@ -173,7 +173,7 @@ FROM competitions""",[]
         del dict
     competitions.update({'competitions': comp_list})
 
-    print(competitions)
+    #print(competitions)
 
     return competitions
 
