@@ -10099,4 +10099,13 @@ body {
   width: 100%;
 }
 
+table.results th:first-child, table.results td:first-child
+{
+  position:sticky;
+  left:0px;
+  background-color:white;
+  width: 150px;
+}
+
+
 /*# sourceMappingURL=bootstrap.css.map */
