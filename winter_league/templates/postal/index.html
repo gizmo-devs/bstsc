@@ -25,9 +25,9 @@
     </div>
     <div class="card-body">
       {% for team in competition.teams%}
-      <h3>{{team.team_name}}</h3>
-        <div class="table-responsive">
-      <table class="table table-bordered results">
+      <h3 id="{{team.u_team_id}}">{{team.team_name}}</h3>
+        <div class="table-responsive table-wrapper">
+        <table class="table table-bordered results">
           <thead>
           <tr>
             <th>Name</th>

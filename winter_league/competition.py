@@ -140,8 +140,13 @@ def add_round(comp_id):
 def collect_competion_data():
     db = get_db()
     competitions = {}
-    info = query_db(
-        'SELECT * from competitions',[]
+    info = query_db("""
+SELECT 
+    id 
+    , competition_name 
+    , season
+    , ( SELECT COUNT(*) FROM ROUNDS WHERE comp_id = competitions.id ) as rounds
+FROM competitions""",[]
     )
     comp_list = []
     #dict['info'] = info
@@ -168,7 +173,7 @@ def collect_competion_data():
         del dict
     competitions.update({'competitions': comp_list})
 
-    #print(comp_list)
+    #print(competitions)
 
     return competitions
 
@@ -329,7 +334,7 @@ def result_save():
         db.execute(sql, params)
         db.commit()
         flash("Record added to the Database")
-        return redirect(url_for('competition.index'))
+        return redirect(url_for('competition.index', _anchor=compTeam_id))
 
 @bp.route("/round_result/<int:id>", methods=['GET'])
 def result(id=0):
