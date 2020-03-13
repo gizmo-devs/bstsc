@@ -13,6 +13,7 @@
       <div class="btn-group float-right" role="group" aria-label="Basic example">
         <a class="btn btn-primary" role="button" href="{{ url_for('team.link_to_comp', team_id=team.details.id) }}">Link to Competition</a>
         <a class="btn btn-primary" role="button" href="{{ url_for('team.team_edit', id=team.details.id) }}">Update Team</a>
+        <a class="btn btn-primary" role="button" href="{{ url_for('team.get_team_stats', team_id=team.details.id) }}">Graph</a>
       </div>
       {%endif%}
     </div>

@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
 import json
@@ -200,6 +200,54 @@ def member_avg_ud(tid, tm_id):
     db.commit()
     return '{ status : success}'
 
+@bp.route('/<int:team_id>/stats', methods=['GET'])
+def get_team_stats(team_id):
+    team_results = {
+        "graph_data": [],
+        "min": 100,
+        "max": 0
+    }
+    print(get_random_colour())
+
+    members = get_members(team_id)
+    for member in members:
+        query = """
+        SELECT scores.result
+        FROM rounds
+        JOIN compTeam 
+            ON compTeam.competition_id = rounds.comp_id
+        JOIN teamMembers
+            ON teamMembers.team_id = compTeam.team_id
+        LEFT JOIN scores
+            ON scores.competition_id = rounds.comp_id
+                AND teamMembers.user_id = scores.user_id
+                AND rounds.num = scores.round
+        JOIN user
+            ON teamMembers.user_id = user.id
+        WHERE 
+            rounds.comp_id=1
+             AND teamMembers.user_id=?
+             AND teamMembers.team_id=?
+        ORDER BY  teamMembers.user_id, rounds.num asc;
+        """
+
+        member_results = {
+            'Name': (member['first_name'] + " " + member['surname']),
+            'results': [x[0] if x[0] else 0 for x in query_db(query, [member['user_id'], str(team_id)])],
+            'colour':get_random_colour()
+        }
+        team_results['graph_data'].append( member_results)
+
+        if max(member_results['results']) > team_results['max']:
+            team_results['max'] = max(member_results['results'])
+
+        min_list = filter(lambda a: a != 0, member_results['results'])
+        if team_results['min'] > min(min_list) :
+            team_results['min'] = min(min_list)
+
+    print(json.dumps(team_results))
+    return render_template('postal/team_stats.html', graph_data=team_results)
+
 
 def get_members(team_id):
     query = 'SELECT '\
@@ -212,20 +260,7 @@ def get_members(team_id):
     return query_db(query, str(team_id))
 
 
-    # db = get_db()
-    # team = db.execute(
-    #     'SELECT '
-    #     'teamMembers. *, user.first_name, user.surname '
-    #     'FROM '
-    #     'teamMembers '
-    #     'JOIN user'
-    #     '    ON teamMembers.user_id = user.id '
-    #     'WHERE team_id = ?', str(team_id)
-    # ).fetchall()
-    #
-    # cur = get_db().execute(query, args)
-    # rv = cur.fetchall()
-    # cur.close()
-    # tpl = team
-    # print (tpl, type(tpl))
-    # return (tpl)
+def get_random_colour():
+    from random import randrange
+
+    return "rgb({}, {}, {})".format(randrange(0, 255), randrange(0, 255), randrange(0, 255))
