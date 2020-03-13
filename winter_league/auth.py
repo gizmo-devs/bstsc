@@ -12,6 +12,7 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+    feedback = []
     if request.method == 'POST':
         username = request.form['username'].strip().lower()
         password = request.form['password']
@@ -22,12 +23,15 @@ def register():
 
         if not username:
             error = 'Username is required.'
+            feedback.append('username')
         elif not password:
             error = 'Password is required.'
+            feedback.append('password')
         elif db.execute(
             'SELECT id FROM user WHERE username = ?', (username,)
         ).fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
+            feedback.append('username')
 
         if error is None:
             db.execute(
@@ -39,10 +43,11 @@ def register():
 
         flash(error)
 
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', feedback=feedback)
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    feedback = []
     if request.method == 'POST':
         username = request.form['username'].strip().lower()
         password = request.form['password']
@@ -53,10 +58,11 @@ def login():
         ).fetchone()
 
         if user is None:
-            error = 'Incorrect username.'
+            error = 'Username "{}" is not recognised.'.format(username)
+            feedback.append('username')
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
-
+            feedback.append('password')
         if error is None:
             session.clear()
             session['user_id'] = user['id']
@@ -64,7 +70,7 @@ def login():
 
         flash(error)
 
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', feedback=feedback)
 
 @bp.route('/reset_password', methods=('GET', 'POST'))
 def reset_user_pw():
