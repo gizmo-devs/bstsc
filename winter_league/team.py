@@ -26,7 +26,7 @@ def index():
             ' join teamMembers ON user_id=user.id'
             ' AND team_id=?', [str(team['id'])])
         active_comps = query_db(
-            'SELECT competition_name FROM competitions WHERE id IN '
+            'SELECT competition_name, id FROM competitions WHERE id IN '
             '(SELECT competition_id FROM compTeam WHERE team_id=?)', str(team['id'])
         )
         avgs = query_db("""SELECT printf("%.1f", avg(result)) as curr_avg, user_id, competition_id FROM scores
@@ -200,8 +200,8 @@ def member_avg_ud(tid, tm_id):
     db.commit()
     return '{ status : success}'
 
-@bp.route('/<int:team_id>/stats', methods=['GET'])
-def get_team_stats(team_id):
+@bp.route('/<int:team_id>/stats/<int:comp_id>', methods=['GET'])
+def get_team_stats(team_id, comp_id):
     team_results = {
         "graph_data": [],
         "min": 100,
@@ -225,7 +225,7 @@ def get_team_stats(team_id):
         JOIN user
             ON teamMembers.user_id = user.id
         WHERE 
-            rounds.comp_id=1
+            rounds.comp_id=?
              AND teamMembers.user_id=?
              AND teamMembers.team_id=?
         ORDER BY  teamMembers.user_id, rounds.num asc;
@@ -233,7 +233,7 @@ def get_team_stats(team_id):
 
         member_results = {
             'Name': (member['first_name'] + " " + member['surname']),
-            'results': [x[0] if x[0] else 0 for x in query_db(query, [member['user_id'], str(team_id)])],
+            'results': [x[0] if x[0] else 0 for x in query_db(query, [str(comp_id), member['user_id'], str(team_id)])],
             'colour':get_random_colour()
         }
         team_results['graph_data'].append( member_results)
