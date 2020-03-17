@@ -244,7 +244,8 @@ def get_team_stats(team_id, comp_id):
                 max(member_results['results']) > team_results['max']:
             team_results['max'] = max(member_results['results'])
 
-        min_list = filter(lambda a: a != 0, member_results['results'])
+        # min_list = filter(lambda a: a != 0, member_results['results'])
+        min_list = [x for x in member_results['results'] if x > 0]
         if len(min_list) > 0 and \
                 team_results['min'] > min(min_list) :
             team_results['min'] = min(min_list)
