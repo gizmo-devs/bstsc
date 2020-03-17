@@ -238,7 +238,7 @@ def get_team_stats(team_id, comp_id):
         }
         team_results['graph_data'].append(member_results)
 
-        print(member_results['results'])
+        print(member_results)
 
         if len(member_results['results']) > 0 and \
                 max(member_results['results']) > team_results['max']:
