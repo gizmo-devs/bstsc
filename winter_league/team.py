@@ -207,7 +207,6 @@ def get_team_stats(team_id, comp_id):
         "min": 100,
         "max": 0
     }
-    print(get_random_colour())
 
     members = get_members(team_id)
     for member in members:
@@ -238,8 +237,6 @@ def get_team_stats(team_id, comp_id):
         }
         team_results['graph_data'].append(member_results)
 
-        print(member_results)
-
         if len(member_results['results']) > 0 and \
                 max(member_results['results']) > team_results['max']:
             team_results['max'] = max(member_results['results'])
@@ -265,7 +262,6 @@ def get_members(team_id):
     return query_db(query, str(team_id))
 
 
-def get_random_colour():
+def get_random_colour(opacity=0.6):
     from random import randrange
-
-    return "rgb({}, {}, {})".format(randrange(0, 255), randrange(0, 255), randrange(0, 255))
+    return "rgba({}, {}, {}, {})".format(randrange(0, 255), randrange(0, 255), randrange(0, 255), opacity)
