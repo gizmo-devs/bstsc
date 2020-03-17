@@ -236,13 +236,17 @@ def get_team_stats(team_id, comp_id):
             'results': [x[0] if x[0] else 0 for x in query_db(query, [str(comp_id), member['user_id'], str(team_id)])],
             'colour':get_random_colour()
         }
-        team_results['graph_data'].append( member_results)
+        team_results['graph_data'].append(member_results)
 
-        if max(member_results['results']) > team_results['max']:
+        print(member_results['results'])
+
+        if len(member_results['results']) > 0 and \
+                max(member_results['results']) > team_results['max']:
             team_results['max'] = max(member_results['results'])
 
         min_list = filter(lambda a: a != 0, member_results['results'])
-        if team_results['min'] > min(min_list) :
+        if len(min_list) > 0 and \
+                team_results['min'] > min(min_list) :
             team_results['min'] = min(min_list)
 
     print(json.dumps(team_results))
