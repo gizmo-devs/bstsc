@@ -1,6 +1,8 @@
 import os
 from flask import Flask, render_template
 
+UPLOAD_FOLDER = 'data_files/uploads'
+ALLOWED_EXTENSIONS = {'xls', 'xlsx'}
 
 def create_app(test_config=None):
     # create and configure the app
@@ -8,6 +10,8 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        UPLOAD_FOLDER=os.path.join(app.root_path, UPLOAD_FOLDER),
+        ALLOWED_EXTENSIONS=ALLOWED_EXTENSIONS
     )
 
     if test_config is None:
@@ -29,16 +33,13 @@ def create_app(test_config=None):
         return 'Hello, World!'
 
 
-    from . import db
+    from . import db, auth, competition, team, user, import_data
     db.init_app(app)
-    from . import auth
     app.register_blueprint(auth.bp)
-    from . import competition
     app.register_blueprint(competition.bp)
-    from . import team
     app.register_blueprint(team.bp)
-    from . import user
     app.register_blueprint(user.bp)
+    app.register_blueprint(import_data.bp)
 
 
     app.add_url_rule('/', endpoint='index')
