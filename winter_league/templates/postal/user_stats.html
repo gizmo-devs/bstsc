@@ -11,8 +11,8 @@
 
 {% block content %}
 <h2>{{user.first_name + " " + user.surname}}</h2>
-<form method="post">
-    <select name="sel_stats" class="custom-select" onchange="this.form.submit()">
+<form method="get" action="{{url_for('user.user_stats', user_id=user.id)}}">
+    <select name="comp_id" class="custom-select" onchange="this.form.submit()">
     <option {{'selected' if graph_data.comp_id|int == 0}} value="0">Last 12 cards</option>
         {% for comp in user_comps %}
         <option {{'selected' if graph_data.comp_id|int == comp.id|int}} value="{{comp.id}}">{{comp.name}}</option>

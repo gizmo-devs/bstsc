@@ -58,8 +58,7 @@ def create_user():
         return render_template('postal/create_user.html', user_data=None)
 
 
-@bp.route("/<int:user_id>/stats", methods=['GET', 'POST'])
-@login_required
+@bp.route("/<int:user_id>/stats", methods=['GET'])
 def user_stats(user_id):
     sel_options = query_db("""SELECT compTeam.competition_id as id
          , competition_name as name
@@ -78,13 +77,11 @@ def user_stats(user_id):
             (SELECT AVG(result) FROM scores WHERE user_id = ? AND completed BETWEEN date('now', '-2 months') AND date('now')) as two_months
         """, [str(user_id), str(user_id), str(user_id), str(user_id)], one=True)
     if request.method == 'GET':
-        graph_data = previous_round_results(user_id=user_id, rounds=12)
-    else:
-        comp_id = request.form['sel_stats']
-        if comp_id == "0":
-            graph_data = previous_round_results(user_id=user_id, rounds=12)
+        if request.args and request.args.get('comp_id') > '0':
+            graph_data = user_comp_stats(user_id=user_id, comp_id=request.args.get('comp_id'))
         else:
-            graph_data = user_comp_stats(user_id=user_id, comp_id=comp_id)
+            graph_data = previous_round_results(user_id=user_id, rounds=12)
+
     return render_template('postal/user_stats.html', user=user_details, avgs=fixed_avgs, user_comps=sel_options, graph_data=graph_data)
 
 
