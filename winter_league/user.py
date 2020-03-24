@@ -86,7 +86,6 @@ def user_stats(user_id):
 
 
 @bp.route("/<int:user_id>/prev_results/<int:rounds>", methods=['GET', 'POST'])
-@login_required
 def previous_round_results(user_id, rounds=12):
     print("user_id", user_id)
     data_set = query_db("""
@@ -113,7 +112,6 @@ def previous_round_results(user_id, rounds=12):
 
 
 @bp.route("/<int:user_id>/stats/<int:comp_id>", methods=['GET', 'POST'])
-@login_required
 def user_comp_stats(user_id, comp_id):
     print("user_id", user_id, "comp_id", comp_id)
     data_set = query_db("""
