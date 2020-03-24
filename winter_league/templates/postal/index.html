@@ -19,7 +19,7 @@
         <div class="float-right">
             <a class="btn btn-primary" href="{{url_for('competition.competition_due_dates')}}">Round Dates</a>
             {% if g.user %}
-            <a class="btn btn-info" href="{{url_for('competition.comp_edit', comp_id=competition.info.id)}}">edit</a>
+            <a class="btn btn-info" href="{{url_for('competition.comp_edit', comp_id=competition.info.id)}}">Edit</a>
             {% endif %}
         </div>
     </div>
@@ -52,7 +52,9 @@
                 <tbody>
                 {% for person in team.shooters %}
                 <tr>
-                    <th scope="row">{{person.name}}<br>
+                    <th scope="row">
+                        <a href="{{url_for('user.user_stats', user_id=person.user_id, comp_id=competition.info.id)}}"
+                           class="text-dark" title="Show graph">{{person.name}}</a><br>
                     </th>
 
                     {% for curr_round in range(num_of_rounds) %}

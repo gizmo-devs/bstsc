@@ -10107,5 +10107,10 @@ table.results th:first-child, table.results td:first-child
   width: 150px;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
+
 
 /*# sourceMappingURL=bootstrap.css.map */
