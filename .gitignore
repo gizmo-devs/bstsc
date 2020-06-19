@@ -1,6 +1,6 @@
 .idea/**
 data_files/
-instance/*
+instance/
 *.pyc
 
 .idea/
