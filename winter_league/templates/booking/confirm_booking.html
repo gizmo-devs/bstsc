@@ -1,0 +1,37 @@
+<div class="modal fade" id="confirm_booking" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please confirm your booking:</p>
+          <form method="post">
+
+              <div class="form-group row">
+                <label for="staticStartTime" class="col-sm-3 col-form-label">Start Time:</label>
+                <div class="col-sm-9">
+                    <input type="hidden" readonly class="form-control-plaintext" id="hiddenStart" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticStartTime" value="">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="staticDuration" class="col-sm-3 col-form-label">Duration</label>
+                <div class="col-sm-9">
+                    <input type="hidden" readonly class="form-control-plaintext" id="hiddenEnd" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticDuration" value="">
+                </div>
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <input class="btn btn-success btn-block" id="submit_confirm" type="submit" value="Confirm">
+<!--        <button type="button" class="btn btn-primary">Save changes</button>-->
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

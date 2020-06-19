@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Range Booking{% endblock %}</h1>
+{% if g.user.permission_level == "admin" %}
+
+{% endif %}
+<script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
+    <link href="{{url_for('static', filename='dist/fullcalendar/core/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/daygrid/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/timegrid/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/list/main.css')}}" rel='stylesheet' />
+
+    <script src="{{url_for('static', filename='dist/fullcalendar/core/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/daygrid/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/timegrid/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/list/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/interaction/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/moment.js')}}"></script>
+<script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          plugins: [ 'dayGrid', 'timeGrid', 'list', 'interaction' ],
+          selectable: true,
+          nowIndicator: true,
+          businessHours: {{business_hours|safe}},
+          slotDuration: '00:20:00',
+          minTime: '09:00:00',
+          maxTime: '21:00:00',
+          header: {
+            left: 'prev,next today'
+            , center: 'title'
+            , right:'dayGridMonth,timeGridWeek,timeGridDay'
+          },
+          dateClick: function(info) {
+                if (info.view.type === 'dayGridMonth'){
+                    calendar.changeView('timeGridDay', info.dateStr)
+                }
+                // alert('Clicked on: ' + info.dateStr);
+                // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+                // alert('Current view: ' + info.view.type);
+                // change the day's background color just for fun
+                //info.dayEl.style.backgroundColor = 'red';
+          },
+          select: function(info){
+            if (info.view.type === 'timeGridDay'){
+                // var c = confirm("did you want to book a firing point at" + info.startStr)
+                show_modal(info);
+            }
+            // alert('selected ' + info.startStr + ' to ' + info.endStr);
+          },
+          eventSources: [
+            {
+                url:"{{ url_for('booking.get_bookings') }}"
+            }
+
+          ]
+
+        });
+
+        calendar.render();
+      });
+
+      function show_modal(info){
+        console.log(info)
+        let current_datetime = new Date(info.start)
+        let formatted_date = moment(info.start).format("Do MMM YYYY HH:mm")
+        let dur = moment(info.end).diff(moment(info.start), 'minutes')
+
+        $('#hiddenStart').val(info.startStr)
+        $('#hiddenEnd').val(info.endStr)
+        $('#staticStartTime').val(formatted_date)
+        $('#staticEndTime').val(formatted_date)
+        $('#staticDuration').val(dur)
+        $('#confirm_booking').modal('show');
+      }
+    </script>
+{% endblock %}
+
+{% block content %}
+<div id='calendar'></div>
+{%include 'booking/confirm_booking.html'%}
+
+<script>
+    $('#submit_confirm').click(function(){
+        var start_time = $('#hiddenStart').val()
+        var end_time = $('#hiddenEnd').val()
+        $.post(
+            '{{request.url}}',
+            {
+                startTime: start_time,
+                endTime: end_time
+            },
+            function(data, status){
+                alert("Data: " + data + "\nStatus: " + status);
+        });
+      });
+</script>
+{% endblock content %}
