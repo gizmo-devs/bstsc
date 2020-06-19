@@ -1,7 +1,8 @@
 .idea/**
 data_files/
-instance/
+instance/*
 *.pyc
 
 .idea/
 .DS_Store
+winter_league/static/dist/fullcalendar-scheduler-4/

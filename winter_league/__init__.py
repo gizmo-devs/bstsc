@@ -33,13 +33,14 @@ def create_app(test_config=None):
         return 'Hello, World!'
 
 
-    from . import db, auth, competition, team, user, import_data
+    from . import db, auth, competition, team, user, import_data, booking
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(competition.bp)
     app.register_blueprint(team.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(import_data.bp)
+    app.register_blueprint(booking.bp)
 
 
     app.add_url_rule('/', endpoint='index')
