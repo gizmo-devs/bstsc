@@ -1,4 +1,6 @@
-.idea/
+.idea/**
 data_files/
 instance/
 *.pyc
+
+.idea/
