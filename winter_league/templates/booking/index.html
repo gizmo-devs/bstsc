@@ -11,23 +11,16 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="row">
+  {% for r in ranges %}
   <div class="col-sm-6">
     <div class="card">
       <div class="card-body">
-        <h3 class="card-title">Indoor (25m)</h3>
-        <a href="{{url_for('booking.planner', range='25m')}}" class="btn btn-primary disabled" role="button" aria-disabled="true">Book a firing point</a>
+        <h3 class="card-title">{{r.name}} ({{r.distance}})</h3>
+        <a href="{{url_for('booking.planner', range=r.distance )}}" class="btn btn-primary {{'disabled' if not r.active}}" role="button" aria-disabled="true">Book a firing point</a>
       </div>
     </div>
   </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">Outdoor (50m+)</h3>
-        <a href="{{url_for('booking.planner', range='50m')}}" class="btn btn-primary">Book a firing point</a>
-      </div>
-    </div>
-  </div>
+  {% endfor %}
 </div>
 {% endblock content %}

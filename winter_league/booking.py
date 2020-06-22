@@ -14,7 +14,7 @@ bp = Blueprint('booking', __name__, url_prefix='/booking')
 @login_required
 @bp.route('/')
 def index():
-    return render_template('booking/index.html')
+    return render_template('booking/index.html', ranges=query_db("SELECT * FROM ranges"))
 
 
 @login_required
@@ -59,12 +59,17 @@ def planner():
 
     return render_template('booking/calendar.html', business_hours=business_hours)
 
+
 @bp.route('get/bookings')
 def get_bookings():
-    data = query_db("SELECT * FROM booking",[])
-    print(data)
-    print(json.dumps(data))
-    return jsonify(data)
+    print("Getting Bookings")
+    if request.args.get('range'):
+        data = query_db("SELECT *, start_time as start, end_time as end FROM booking where range=?",[request.args['range']], dict=True)
+    else:
+        data = query_db("SELECT *, start_time as start, end_time as end FROM booking",
+                        [], dict=True)
+    return json.dumps(data, default=default)
+
 
 def render_datetime(ts):
     parts = ts.split('T')
@@ -73,3 +78,8 @@ def render_datetime(ts):
     d = date(int(y), int(m), int(d))
     t = time(int(h), int(M))
     return datetime.combine(d, t)
+
+
+def default(o):
+    if isinstance(o, (date, datetime)):
+        return o.strftime("%Y-%m-%dT%H:%M")

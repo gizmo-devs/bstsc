@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %}Range Booking{% endblock %}</h1>
+<h1>{% block title %}{{request.args.get('range') if request.args.get('range') != None else ''}} Range Booking{% endblock %}</h1>
 {% if g.user.permission_level == "admin" %}
 
 {% endif %}
@@ -11,32 +11,47 @@
     <link href="{{url_for('static', filename='dist/fullcalendar/daygrid/main.css')}}" rel='stylesheet' />
     <link href="{{url_for('static', filename='dist/fullcalendar/timegrid/main.css')}}" rel='stylesheet' />
     <link href="{{url_for('static', filename='dist/fullcalendar/list/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/bootstrap/main.css')}}" rel='stylesheet' />
 
     <script src="{{url_for('static', filename='dist/fullcalendar/core/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/fullcalendar/daygrid/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/fullcalendar/timegrid/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/fullcalendar/list/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/fullcalendar/interaction/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/bootstrap/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/moment.js')}}"></script>
 <script>
 
-      document.addEventListener('DOMContentLoaded', function() {
+
+    </script>
+{% endblock %}
+
+{% block content %}
+<div id='calendar'></div>
+{%include 'booking/confirm_booking.html'%}
+
+<script>
+    var calendar;
+document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          plugins: [ 'dayGrid', 'timeGrid', 'list', 'interaction' ],
-          selectable: true,
-          nowIndicator: true,
-          businessHours: {{business_hours|safe}},
-          slotDuration: '00:20:00',
-          minTime: '09:00:00',
-          maxTime: '21:00:00',
-          header: {
-            left: 'prev,next today'
-            , center: 'title'
-            , right:'dayGridMonth,timeGridWeek,timeGridDay'
-          },
-          dateClick: function(info) {
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            themeSystem: 'bootstrap',
+            firstDay:    1,
+            plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list', 'interaction' ],
+            selectable: true,
+            placeholder: true,
+            nowIndicator: true,
+            businessHours: {{business_hours|safe}},
+            slotDuration: '00:20:00',
+            minTime: '09:00:00',
+            maxTime: '21:00:00',
+            header: {
+                left: 'prev,next today'
+                , center: 'title'
+                , right:'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            dateClick: function(info) {
                 if (info.view.type === 'dayGridMonth'){
                     calendar.changeView('timeGridDay', info.dateStr)
                 }
@@ -45,23 +60,27 @@
                 // alert('Current view: ' + info.view.type);
                 // change the day's background color just for fun
                 //info.dayEl.style.backgroundColor = 'red';
-          },
-          select: function(info){
-            if (info.view.type === 'timeGridDay'){
-                // var c = confirm("did you want to book a firing point at" + info.startStr)
-                show_modal(info);
+            },
+            select: function(info){
+                if (info.view.type === 'timeGridDay'){
+                    // var c = confirm("did you want to book a firing point at" + info.startStr)
+                    show_modal(info);
+                }
+                // alert('selected ' + info.startStr + ' to ' + info.endStr);
+            },
+            events: {
+                url: "{{ url_for('booking.get_bookings') }}",
+                extraParams: function() { // a function that returns an object
+                    return {
+                        range: "{{request.args.get('range')}}"
+                    }
+                }
+            },
+            eventSourceSuccess: function(content, xhr) {
+                console.log(content);
             }
-            // alert('selected ' + info.startStr + ' to ' + info.endStr);
-          },
-          eventSources: [
-            {
-                url:"{{ url_for('booking.get_bookings') }}"
-            }
-
-          ]
 
         });
-
         calendar.render();
       });
 
@@ -78,14 +97,6 @@
         $('#staticDuration').val(dur)
         $('#confirm_booking').modal('show');
       }
-    </script>
-{% endblock %}
-
-{% block content %}
-<div id='calendar'></div>
-{%include 'booking/confirm_booking.html'%}
-
-<script>
     $('#submit_confirm').click(function(){
         var start_time = $('#hiddenStart').val()
         var end_time = $('#hiddenEnd').val()
@@ -96,7 +107,12 @@
                 endTime: end_time
             },
             function(data, status){
-                alert("Data: " + data + "\nStatus: " + status);
+                if (status === 'success'){
+                    $('#confirm_booking').modal('hide');
+                    calendar.refetchEvents();
+                } else {
+                    alert('Event could not be added to the database');
+                }
         });
       });
 </script>
