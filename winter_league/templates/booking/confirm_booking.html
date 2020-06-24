@@ -2,7 +2,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
+        <h5 class="modal-title">Please Confirm</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -12,16 +12,29 @@
           <form method="post">
 
               <div class="form-group row">
-                <label for="staticStartTime" class="col-sm-3 col-form-label">Start Time:</label>
-                <div class="col-sm-9">
+                <label for="staticStartTime" class="col-sm-2 col-form-label">Start:</label>
+                <div class="col-sm-5">
                     <input type="hidden" readonly class="form-control-plaintext" id="hiddenStart" value="">
-                    <input type="text" readonly class="form-control-plaintext" id="staticStartTime" value="">
+                    <input type="hidden" readonly class="form-control-plaintext" id="eventId" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticStartDate" value="">
                 </div>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="staticStartTime" value="">
+                  </div>
               </div>
               <div class="form-group row">
-                <label for="staticDuration" class="col-sm-3 col-form-label">Duration</label>
-                <div class="col-sm-9">
+                <label for="staticStartTime" class="col-sm-2 col-form-label">End:</label>
+                <div class="col-sm-5">
                     <input type="hidden" readonly class="form-control-plaintext" id="hiddenEnd" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticEndDate" value="">
+                </div>
+                  <div class="col-sm-4">
+                      <input type="text" readonly class="form-control-plaintext" id="staticEndTime" value="">
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="staticDuration" class="col-sm-2 col-form-label">Duration:</label>
+                <div class="col-sm-10">
                     <input type="text" readonly class="form-control-plaintext" id="staticDuration" value="">
                 </div>
               </div>

@@ -20,10 +20,6 @@
     <script src="{{url_for('static', filename='dist/fullcalendar/interaction/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/fullcalendar/bootstrap/main.js')}}"></script>
     <script src="{{url_for('static', filename='dist/moment.js')}}"></script>
-<script>
-
-
-    </script>
 {% endblock %}
 
 {% block content %}
@@ -32,7 +28,7 @@
 
 <script>
     var calendar;
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
 
         calendar = new FullCalendar.Calendar(calendarEl, {
@@ -52,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 , right:'dayGridMonth,timeGridWeek,timeGridDay'
             },
             dateClick: function(info) {
-                if (info.view.type === 'dayGridMonth'){
+                if (info.view.type === 'dayGridMonth' || info.view.type === 'timeGridWeek'){
                     calendar.changeView('timeGridDay', info.dateStr)
                 }
                 // alert('Clicked on: ' + info.dateStr);
@@ -61,10 +57,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 // change the day's background color just for fun
                 //info.dayEl.style.backgroundColor = 'red';
             },
+            eventClick: function(info) {
+                if (info.event.extendedProps.user_id == {{g.user.id}}){
+                    show_modal(info.event, 'delete')
+                    //alert('Editable ' + info.event.id)
+                }
+
+                //alert('Event: ' + info.event.title);
+                //alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+                //alert('View: ' + info.view.type);
+
+                // change the border color just for fun
+                // info.el.style.borderColor = 'red';
+            },
             select: function(info){
                 if (info.view.type === 'timeGridDay'){
+                    check_availability(info, "{{request.args.get('range')}}", 'create')
                     // var c = confirm("did you want to book a firing point at" + info.startStr)
-                    show_modal(info);
+
                 }
                 // alert('selected ' + info.startStr + ' to ' + info.endStr);
             },
@@ -77,34 +87,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             eventSourceSuccess: function(content, xhr) {
-                console.log(content);
+                //console.log(content);
             }
 
         });
         calendar.render();
-      });
+    });
 
-      function show_modal(info){
+    function show_modal(info, type){
         console.log(info)
         let current_datetime = new Date(info.start)
-        let formatted_date = moment(info.start).format("Do MMM YYYY HH:mm")
+        let formatted_start_date = moment(info.start).format("Do MMM YYYY")
+        let formatted_start_time = moment(info.start).format("HH:mm")
+        let formatted_end_date = moment(info.end).format("Do MMM YYYY")
+        let formatted_end_time = moment(info.end).format("HH:mm")
         let dur = moment(info.end).diff(moment(info.start), 'minutes')
 
+        if (info.id != undefined){
+            $('#eventId').val(info.id)
+        } else {
+            $('#eventId').val('')
+        }
         $('#hiddenStart').val(info.startStr)
         $('#hiddenEnd').val(info.endStr)
-        $('#staticStartTime').val(formatted_date)
-        $('#staticEndTime').val(formatted_date)
+        $('#staticStartDate').val(formatted_start_date)
+        $('#staticStartTime').val(formatted_start_time)
+        $('#staticEndDate').val(formatted_end_date)
+        $('#staticEndTime').val(formatted_end_time)
         $('#staticDuration').val(dur)
+        if (type == 'create') {
+            $('#submit_confirm').val('Confirm').addClass('btn-success').removeClass('btn-danger');
+        } else {
+            $('#submit_confirm').val('Delete').addClass('btn-danger').removeClass('btn-success');
+        }
         $('#confirm_booking').modal('show');
-      }
+    }
     $('#submit_confirm').click(function(){
+        if ($(this).val() == 'Confirm') {
+            var type = 'new'
+        } else {
+            var type = 'delete'
+        }
         var start_time = $('#hiddenStart').val()
         var end_time = $('#hiddenEnd').val()
+        var event_id = $('#eventId').val()
         $.post(
             '{{request.url}}',
             {
                 startTime: start_time,
-                endTime: end_time
+                endTime: end_time,
+                eventId: event_id,
+                action: type
             },
             function(data, status){
                 if (status === 'success'){
@@ -113,7 +146,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     alert('Event could not be added to the database');
                 }
-        });
-      });
+            }
+        );
+    });
+
+    function check_availability(e, r, type){
+        $.get({
+            url: "{{url_for('booking.check_availability')}}",
+            data: {
+                start: e.startStr,
+                end: e.endStr,
+                range: r,
+                dataType: 'json'
+            },
+            success: function(data){
+                var response = JSON.parse(data)
+                if (response[0]['bookings'] >= {{range.firing_points}}) {
+                    alert('The {{range.distance}} Range has a maximum of {{range.firing_points}} firing points' )
+                    $('#confirm_booking').modal('hide');
+                } else {
+                    show_modal(e, type);
+                }
+            }
+        })
+    }
 </script>
 {% endblock content %}
