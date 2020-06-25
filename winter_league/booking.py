@@ -54,6 +54,8 @@ def planner():
             start_dt = parse(start_str)
             end_dt = parse(end_str)
 
+            armory_access = request.form['armoryAccess']
+
             query = "INSERT INTO booking (range, title, user_id, start_time, end_time, allDay, armory_access) VALUES " \
                     "(?, ?, ?, ?, ?, ?, ?)"
             params = [
@@ -63,7 +65,7 @@ def planner():
                 start_dt,
                 end_dt,
                 0,
-                0
+                armory_access
             ]
         else:
             print('you have tried to update!!')
