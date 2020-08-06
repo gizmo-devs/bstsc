@@ -32,14 +32,24 @@
 
 <div class="collapse card card-body" id="collapseHelp">
 <p>
-    Choose a date and time that you would like to book a <strong>single</strong> firing point by selecting and dragging over the details.
+    Choose a date and time that you would like to book a <strong>single</strong> firing point.
+    You can do this by selecting and dragging over the specific time on the calendar.
 </p>
-<p>Currently the {{range.distance}} range can only accept <strong>{{range.firing_points}}</strong></p>
+<p>Currently the {{range.distance}} range can only accept <strong>{{range.firing_points}}</strong> firing points.</p>
+{% if range.distance == '50m' %}
+<p>For the {{range.distance}} range it is suggested to book 2 hour slots.</p>
+{% endif %}
 <p>If you create a booking, you are able to delete it. You will not have permission to delete someone else's booking. You are able to see your bookings as yours are opaque.</p>
     </div>
 <div class="mt-3" id='calendar'></div>
 {%include 'booking/confirm_booking.html'%}
-
+<div class="toast bg-danger">
+      <div class="card-header text-white">
+        <h5>Info</h5>
+      </div>
+      <div class="card-body text-white">
+      </div>
+    </div>
 <script>
     var calendar;
     document.addEventListener('DOMContentLoaded', function() {
@@ -53,9 +63,11 @@
             placeholder: true,
             nowIndicator: true,
             businessHours: {{business_hours|safe}},
-            slotDuration: '00:20:00',
-            minTime: '09:00:00',
-            maxTime: '21:00:00',
+            slotDuration: '00:20',
+            snapDuration: '01:20',
+            minTime: '09:00',
+            maxTime: '21:00',
+            defaultEventMinutes: 120,
             header: {
                 left: 'prev,next today'
                 , center: 'title'
@@ -71,15 +83,23 @@
                 // change the day's background color just for fun
                 //info.dayEl.style.backgroundColor = 'red';
             },
+            selectHelper: true,
             eventClick: function(info) {
                 if (info.event.extendedProps.user_id == {{g.user.id}} || "admin" === "{{g.user.permission_level}}"){
                     show_modal(info.event, 'delete')
                 }
             },
             select: function(info){
-                console.log(info)
-                if (info.view.type === 'timeGridDay'){
-                        check_availability(info, "{{request.args.get('range')}}", 'create')
+                // console.log(info)
+                var d = moment(info.end).diff(moment(info.start), 'm')
+                if (d < 120) {
+                    var t = $('.toast')
+                    $(t).find('.card-body').html("You have selected a duration of " + d + "minutes. <br>A minimum of 120 minutes is required for a booking.")
+                    $(t).toast({animation: true, delay: 4000}).toast('show');
+                } else {
+                    if (info.view.type === 'timeGridDay'){
+                            check_availability(info, "{{request.args.get('range')}}", 'create')
+                    }
                 }
             },
             events: {
@@ -93,7 +113,7 @@
             eventRender: function(event, element) {
                 if (event.event.extendedProps.user_id !== {{g.user.id}}) {
                     event.el.className = event.el.className + ' opacity-3';
-                    console.log('true', event)
+                    // console.log('true', event)
                 }
             },
             eventSourceSuccess: function(content, xhr) {
@@ -105,7 +125,6 @@
     });
 
     function show_modal(info, type){
-        console.log(info)
         let current_datetime = new Date(info.start)
         let formatted_start_date = moment(info.start).format("Do MMM YYYY")
         let formatted_start_time = moment(info.start).format("HH:mm")
@@ -131,11 +150,17 @@
         $('#staticEndTime').val(formatted_end_time)
         $('#staticDuration').val(dur)
         if (type == 'create') {
-            $('#submit_confirm').val('Confirm').addClass('btn-success').removeClass('btn-danger');
+            if (dur < 120) {
+                $('#submit_confirm').val('Cancel').addClass('btn-danger').removeClass('btn-success');
+            } else {
+                $('#Duration_err').collapse('hide');
+                $('#submit_confirm').val('Confirm').addClass('btn-success').removeClass('btn-danger');
+            }
         } else {
             $('#submit_confirm').val('Delete').addClass('btn-danger').removeClass('btn-success');
         }
         $('#confirm_booking').modal('show');
+        return
     }
 
     $('#submit_confirm').click(function(){
