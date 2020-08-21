@@ -39,36 +39,40 @@ def planner():
         range = query_db("SELECT * FROM ranges WHERE distance=?", [request.args['range']], one=True)
 
     if request.method == "POST":
-        print(request.form)
+        print('Creating booking')
+        user_query = query_db("SELECT first_name, surname FROM user WHERE id=?", [session['user_id']], one=True)
         if request.form['action'] == 'new':
-            # start_dt = render_datetime(request.form['startTime'])
-            # end_dt = render_datetime(request.form['endTime'])
-            # local_tz = pytz.timezone ('Europe/London')
-            # s_utc_dt = local_tz.localize(start_dt, is_dst=None)
-            # utc_dt = s_utc_dt.astimezone(pytz.utc)
-            # print("UTC =", utc_dt)
-            # start_dt = parse(rreplace(request.form['startTime'], ':', 1))
-            # end_dt = parse(rreplace(request.form['endTime'], ':', 1))
-            start_str=request.form['startTime'].split('+')[0]
-            end_str =request.form['endTime'].split('+')[0]
+            if '+' in request.form['startTime']:
+                start_str = request.form['startTime'].split('+')[0]
+            elif '.' in request.form['startTime']:
+                start_str = request.form['startTime'].split('.')[0]
+            else:
+                start_str = request.form['startTime']
+            if '+' in request.form['endTime']:
+                end_str = request.form['endTime'].split('+')[0]
+            elif '.' in request.form['endTime']:
+                end_str = request.form['endTime'].split('.')[0]
+            else:
+                end_str = request.form['endTime']
+
             start_dt = parse(start_str)
             end_dt = parse(end_str)
 
-            armory_access = request.form['armoryAccess']
+            # armory_access = request.form['armoryAccess']
 
             query = "INSERT INTO booking (range, title, user_id, start_time, end_time, allDay, armory_access) VALUES " \
                     "(?, ?, ?, ?, ?, ?, ?)"
             params = [
                 request.args["range"],
-                " ".join([request.args["range"], "Range booking"]),
+                " ".join([user_query['first_name'], user_query['surname'],request.args["range"], "Range booking"]),
                 g.user['id'],
                 start_dt,
                 end_dt,
                 0,
-                armory_access
+                0,
             ]
         else:
-            print('you have tried to update!!')
+            print('Deleting Event ID: ' + request.form['eventId'])
             query = "DELETE FROM booking WHERE id = ?"
             params = [
                 request.form['eventId']
