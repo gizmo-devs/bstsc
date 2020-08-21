@@ -34,6 +34,8 @@ def planner():
             "endTime": '21:00' # 4pm
         }
     ]
+    print(g.user['id'])
+    users = query_db("SELECT first_name, surname FROM user", [])
 
     if "range" in request.args:
         range = query_db("SELECT * FROM ranges WHERE distance=?", [request.args['range']], one=True)
@@ -42,6 +44,9 @@ def planner():
         print('Creating booking')
         user_query = query_db("SELECT first_name, surname FROM user WHERE id=?", [session['user_id']], one=True)
         if request.form['action'] == 'new':
+
+            print(request.form)
+
             if '+' in request.form['startTime']:
                 start_str = request.form['startTime'].split('+')[0]
             elif '.' in request.form['startTime']:
@@ -64,7 +69,7 @@ def planner():
                     "(?, ?, ?, ?, ?, ?, ?)"
             params = [
                 request.args["range"],
-                " ".join([user_query['first_name'], user_query['surname'],request.args["range"], "Range booking"]),
+                " ".join([request.form["bookingFor"],request.args["range"], "Range booking"]),
                 g.user['id'],
                 start_dt,
                 end_dt,
@@ -84,7 +89,7 @@ def planner():
         db.commit()
         db.close()
 
-    return render_template('booking/calendar.html', business_hours=business_hours, range=range)
+    return render_template('booking/calendar.html', business_hours=business_hours, range=range, users=users)
 
 
 @bp.route('get/bookings')

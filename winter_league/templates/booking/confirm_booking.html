@@ -40,6 +40,16 @@
                     <input type="text" readonly class="form-control-plaintext" id="staticDuration" value="">
                 </div>
               </div>
+              <div class="form-group row {{'d-none' if g.user.permission_level != 'admin'}}">
+              <label for="booking_for" class="col-3 col-form-label">Booking For:</label>
+                  <div class="col-9">
+                      <select name="booking_for" id="booking_for" class="custom-select">
+                            {% for user in users %}
+                                <option value="{{user.id}}" {{'selected' if user.id == g.user['id']}}>{{user.first_name}} {{user.surname}}</option>
+                            {% endfor %}
+                      </select>
+                  </div>
+              </div>
               <div class="form-group row d-none">
                 <label for="staticDuration" class="col-sm-5 col-form-label">Access to the Armory:</label>
                 <div class="col-sm-7">

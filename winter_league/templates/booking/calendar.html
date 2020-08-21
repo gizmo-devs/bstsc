@@ -163,7 +163,7 @@
         $('#staticEndTime').val(formatted_end_time)
         var x = moment.duration(dur, 'days')
         console.log(x)
-        $('#staticDuration').val(moment(moment.duration(dur, "m").asMilliseconds()).format("H[hr] mm[m]"))
+        $('#staticDuration').val(moment(moment.duration(dur, "m").asMilliseconds()).format("H[hr] m[m]"))
         if (type == 'create') {
             if (dur < 120) {
                 $('#submit_confirm').val('Cancel').addClass('btn-danger').removeClass('btn-success');
@@ -187,6 +187,7 @@
         var start_time = $('#hiddenStart').val()
         var end_time = $('#hiddenEnd').val()
         var event_id = $('#eventId').val()
+        var booking_for = $('#booking_for option:selected' ).text()
         var armoryReq = $('input[name=ArmRadOpt]:checked').val()
         $.post(
             '{{request.url}}',
@@ -194,6 +195,7 @@
                 startTime: start_time,
                 endTime: end_time,
                 eventId: event_id,
+                bookingFor: booking_for,
                 armoryAccess: armoryReq,
                 action: type
             },
