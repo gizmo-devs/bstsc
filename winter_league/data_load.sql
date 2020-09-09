@@ -76,25 +76,25 @@
 --======================================
 -- START OF UPDATE 004
 --======================================
---CREATE TABLE booking (
---  id INTEGER PRIMARY KEY AUTOINCREMENT,
---  range TEXT NOT NULL,
---  title TEXT NOT NULL,
---  user_id INTEGER NOT NULL,
---  start_time TIMESTAMP NOT NULL,
---  end_time TIMESTAMP NOT NULL,
---  allDay BOOLEAN NOT NULL,
---  armory_access BOOLEAN NOT NULL
---);
+CREATE TABLE booking (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  range TEXT NOT NULL,
+  title TEXT NOT NULL,
+  user_id INTEGER NOT NULL,
+  start_time TIMESTAMP NOT NULL,
+  end_time TIMESTAMP NOT NULL,
+  allDay BOOLEAN NOT NULL,
+  armory_access BOOLEAN NOT NULL
+);
 
---DROP TABLE IF EXISTS ranges ;
---CREATE TABLE ranges (
---    id INTEGER PRIMARY KEY AUTOINCREMENT,
---    name TEXT NOT NULL,
---    distance TEXT NOT NULL,
---    firing_points INTEGER NULL,
---    active BOOLEAN NOT NUll
---)
+DROP TABLE IF EXISTS ranges ;
+CREATE TABLE ranges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    distance TEXT NOT NULL,
+    firing_points INTEGER NULL,
+    active BOOLEAN NOT NUll
+);
 
 INSERT INTO ranges (active, distance, firing_points, name)
-    VALUES (0, '25m', 5, 'Indoor'), (1, '50m', 3, 'Outdoor');
+    VALUES (0, '25yd', 3, 'Indoor'), (1, '50m', 3, 'Outdoor');
