@@ -91,9 +91,9 @@
             select: function(info){
                 // console.log(info)
                 var dur = moment(info.end).diff(moment(info.start), 'm')
-                var required_time_slot = {{120 if range.distance == '50m' else 20}}
+                var required_time_slot = 120 // {{120 if range.distance == '50m' else 120}}
 
-                if (dur == 20){
+                if (dur == 30){
                     check_availability(info, "{{request.args.get('range')}}", 'create')
                 } else if (dur < required_time_slot) {
                     var t = $('.toast')
@@ -101,7 +101,7 @@
                     $(t).toast({animation: true, delay: 4000}).toast('show');
                 } else {
                     if (info.view.type === 'timeGridDay'){
-                            check_availability(info, "{{request.args.get('range')}}", 'create')
+                        check_availability(info, "{{request.args.get('range')}}", 'create')
                     }
                 }
             },
@@ -130,7 +130,7 @@
     function show_modal(info, type){
         let current_datetime = new Date(info.start)
         let dur = moment(info.end).diff(moment(info.start), 'm')
-        if (dur == 20){
+        if (dur == 30){
             info.end = moment(info.start).add(2, 'hours')
             info.endStr = info.end.format()
             console.log(info.endStr)
