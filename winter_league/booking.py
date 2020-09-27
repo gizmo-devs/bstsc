@@ -12,14 +12,16 @@ from .auth import login_required
 bp = Blueprint('booking', __name__, url_prefix='/booking')
 
 
-@login_required
+
 @bp.route('/')
+@login_required
 def index():
     return render_template('booking/index.html', ranges=query_db("SELECT * FROM ranges"))
 
 
-@login_required
+
 @bp.route('/calendar', methods=["POST", "GET"])
+@login_required
 def planner():
     business_hours = [
         #specify an array instead
@@ -34,7 +36,7 @@ def planner():
             "endTime": '21:00' # 4pm
         }
     ]
-    print(g.user['id'])
+    # print(g.user['id'])
     users = query_db("SELECT first_name, surname FROM user", [])
 
     if "range" in request.args:
