@@ -37,7 +37,7 @@ def planner():
         }
     ]
     # print(g.user['id'])
-    users = query_db("SELECT first_name, surname FROM user", [])
+    users = query_db("SELECT id, first_name, surname FROM user", [])
 
     if "range" in request.args:
         range = query_db("SELECT * FROM ranges WHERE distance=?", [request.args['range']], one=True)
