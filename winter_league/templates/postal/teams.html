@@ -44,7 +44,7 @@
                     {% endif %}
                   </td>
                   <td>
-                    {% if user_avg[0] in ['None', '', None] or user['submitted_avg'] in ['None', '', None] %}
+                    {% if user_avg|length == 0 or user['submitted_avg'] in ['None', '', None] %}
                       -
                     {% else %}
                       {{ user_avg[0] }} <span class="pull-right {{'fa fa-caret-up text-success' if user['submitted_avg']|float < user_avg[0]|float else 'fa fa-caret-down text-danger'}}"></span>
