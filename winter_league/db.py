@@ -6,18 +6,29 @@ from flask.cli import with_appcontext
 
 import os.path
 
-def get_db():
+def get_db(dict=None):
     if 'db' not in g:
         g.db = sqlite3.connect(
             current_app.config['DATABASE'],
             detect_types=sqlite3.PARSE_DECLTYPES
         )
-        g.db.row_factory = sqlite3.Row
+        if dict:
+            g.db.row_factory = dict_factory
+        else:
+            g.db.row_factory = sqlite3.Row
+    else:
+        if g.db.row_factory == sqlite3.Row and dict:
+            close_db()
+            g.db = sqlite3.connect(
+                current_app.config['DATABASE'],
+                detect_types=sqlite3.PARSE_DECLTYPES
+            )
+            g.db.row_factory = dict_factory
 
     return g.db
 
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
+def query_db(query, args=(), one=False, dict=None):
+    cur = get_db(dict).execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
@@ -28,6 +39,13 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def init_db():

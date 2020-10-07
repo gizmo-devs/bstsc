@@ -32,6 +32,9 @@
     <li class="nav-item">
       <a class="nav-link" href="{{ url_for('team.index') }}">Teams</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('booking.index') }}">Booking</a>
+    </li>
     {% if g.user.permission_level == "admin" %}
     <!-- Dropdown -->
     <li class="nav-item">
@@ -88,7 +91,7 @@
   <div class="container">
     <div class="d-flex justify-content-between">
       <span class="text-muted">Created By Craig</span>
-      <span class="text-muted">Version 1.1.0</span>
+      <span class="text-muted">Version 1.1.8</span>
     </div>
   </div>
 </footer>

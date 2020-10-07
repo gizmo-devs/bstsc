@@ -12,10 +12,11 @@ bp = Blueprint('team', __name__, url_prefix='/teams')
 @bp.route('/')
 def index():
     db = get_db()
-    teams = db.execute(
-        'SELECT DISTINCT id, team_name, team_size, season'
-        ' FROM team'
-    ).fetchall()
+    teams = query_db(
+        """SELECT DISTINCT id, team_name, team_size, season
+        FROM team 
+        ORDER BY season desc"""
+    )
 
     teamData = []
 
@@ -26,7 +27,7 @@ def index():
             ' join teamMembers ON user_id=user.id'
             ' AND team_id=?', [str(team['id'])])
         active_comps = query_db(
-            'SELECT competition_name, id FROM competitions WHERE id IN '
+            'SELECT competition_name, id, season FROM competitions WHERE id IN '
             '(SELECT competition_id FROM compTeam WHERE team_id=?)', str(team['id'])
         )
         avgs = query_db("""SELECT printf("%.1f", avg(result)) as curr_avg, user_id, competition_id FROM scores
@@ -156,13 +157,11 @@ def link_to_comp(team_id):
         db.commit()
         return redirect(url_for('team.index'))
     else:
-
         team = query_db(
                 'SELECT id, team_name FROM team WHERE id=?', str(team_id), one=True
             )
-        print (team)
         comps = query_db(
-                'SELECT * FROM competitions'
+                'SELECT * FROM competitions ORDER BY season desc'
             )
 
     return render_template('postal/link_team.html', competitions=comps, team=team)

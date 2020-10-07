@@ -72,7 +72,49 @@
 --======================================
 -- START OF UPDATE 003
 --======================================
-ALTER TABLE teamMembers ADD submitted_avg DECIMAL;
+-- ALTER TABLE teamMembers ADD submitted_avg DECIMAL;
 --======================================
--- START OF UPDATE 003
+-- START OF UPDATE 004
 --======================================
+--CREATE TABLE booking (
+--  id INTEGER PRIMARY KEY AUTOINCREMENT,
+--  range TEXT NOT NULL,
+--  title TEXT NOT NULL,
+--  user_id INTEGER NOT NULL,
+--  start_time TIMESTAMP NOT NULL,
+--  end_time TIMESTAMP NOT NULL,
+--  allDay BOOLEAN NOT NULL,
+--  armory_access BOOLEAN NOT NULL
+--);
+--
+--DROP TABLE IF EXISTS ranges ;
+--CREATE TABLE ranges (
+--    id INTEGER PRIMARY KEY AUTOINCREMENT,
+--    name TEXT NOT NULL,
+--    distance TEXT NOT NULL,
+--    firing_points INTEGER NULL,
+--    active BOOLEAN NOT NUll
+--);
+--
+--INSERT INTO ranges (active, distance, firing_points, name)
+--    VALUES (0, '25yd', 3, 'Indoor'), (1, '50m', 3, 'Outdoor');
+--======================================
+-- START OF UPDATE 005
+--======================================
+ALTER TABLE booking RENAME TO _booking_old;
+
+CREATE TABLE booking (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  range TEXT NOT NULL,
+  title TEXT NOT NULL,
+  user_id INTEGER NOT NULL,
+  start_time TEXT NOT NULL,
+  end_time TEXT NOT NULL,
+  allDay BOOLEAN NOT NULL,
+  armory_access BOOLEAN NOT NULL
+);
+
+--DROP TABLE bookingTemp;
+
+INSERT INTO booking (range, title, user_id, start_time, end_time, allDay, armory_access)
+    SELECT range, title, user_id, start_time, end_time, allDay, armory_access FROM _booking_old;

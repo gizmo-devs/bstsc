@@ -146,7 +146,8 @@ SELECT
     , competition_name 
     , season
     , ( SELECT COUNT(*) FROM ROUNDS WHERE comp_id = competitions.id ) as rounds
-FROM competitions""",[]
+FROM competitions
+ORDER BY season desc""",[]
     )
     comp_list = []
     #dict['info'] = info
@@ -363,7 +364,7 @@ def result(id=0):
 def competition_due_dates():
     comp_details = None
     curr_date = datetime.date.today()
-    comps = query_db("SELECT id, competition_name FROM competitions",[])
+    comps = query_db("SELECT id, competition_name, season FROM competitions ORDER BY season desc",[])
     if request.method == "POST":
         comp_id = request.form['comp_sel']
         comp_details = query_db("SELECT num, due_date FROM rounds WHERE comp_id=?", [comp_id])

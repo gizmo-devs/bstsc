@@ -20,7 +20,7 @@
             <select class="custom-select" id="comp_sel" name="comp_sel" onchange="this.form.submit()">
             <option value="">Please Select</option>
             {% for comp in comp_list %}
-                <option {{ 'selected' if (comp.id == chosen_comp_id|int) }} value="{{comp.id}}">{{comp.competition_name}}</option>
+                <option {{ 'selected' if (comp.id == chosen_comp_id|int) }} value="{{comp.id}}">{{comp.competition_name}} - {{comp.season}}</option>
             {% endfor %}
             </select>
         </div>

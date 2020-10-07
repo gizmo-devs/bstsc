@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="d-flex">
+    <h1>{% block title %}{{request.args.get('range') if request.args.get('range') != None else ''}} Range Booking{% endblock %}</h1>
+    <a class="btn btn-primary btn-sm ml-auto align-self-center" data-toggle="collapse" href="#collapseHelp" role="button" aria-expanded="false" aria-controls="collapseHelp">
+    How to use the Booking System
+    </a>
+</div>
+
+{% if g.user.permission_level == "admin" %}
+
+{% endif %}
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
+    <link href="{{url_for('static', filename='dist/fullcalendar/core/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/daygrid/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/timegrid/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/list/main.css')}}" rel='stylesheet' />
+    <link href="{{url_for('static', filename='dist/fullcalendar/bootstrap/main.css')}}" rel='stylesheet' />
+
+    <script src="{{url_for('static', filename='dist/fullcalendar/core/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/daygrid/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/timegrid/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/list/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/interaction/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/fullcalendar/bootstrap/main.js')}}"></script>
+    <script src="{{url_for('static', filename='dist/moment.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="collapse card card-body" id="collapseHelp">
+<p>
+    Choose a date and time that you would like to book a <strong>single</strong> firing point.
+    You can do this by selecting and dragging over the specific time on the calendar.
+</p>
+<p>Currently the {{range.distance}} range can only accept <strong>{{range.firing_points}}</strong> firing points.</p>
+{% if range.distance == '50m' %}
+<p>For the {{range.distance}} range it is required to book 2+ hour slots.</p>
+{% endif %}
+<p>If you create a booking, you are able to delete it. You will not have permission to delete someone else's booking. You are able to see your bookings as yours are opaque.</p>
+    </div>
+<div class="mt-3" id='calendar'></div>
+{%include 'booking/confirm_booking.html'%}
+<div class="toast bg-danger">
+      <div class="card-header text-white">
+        <h5>Info</h5>
+      </div>
+      <div class="card-body text-white">
+      </div>
+    </div>
+<script>
+    var calendar;
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            themeSystem: 'bootstrap',
+            firstDay:    1,
+            plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list', 'interaction' ],
+            selectable: true,
+            selectMirror: true,
+            nowIndicator: true,
+            businessHours: {{business_hours|safe}},
+            slotDuration: '00:30',
+            snapDuration: '01:20',
+            minTime: '09:00',
+            maxTime: '21:00',
+            defaultEventMinutes: 120,
+            header: {
+                left: 'prev,next today'
+                , center: 'title'
+                , right:'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            dateClick: function(info) {
+                if (info.view.type === 'dayGridMonth' || info.view.type === 'timeGridWeek'){
+                    calendar.changeView('timeGridDay', info.dateStr)
+                }
+                // alert('Clicked on: ' + info.dateStr);
+                // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+                // alert('Current view: ' + info.view.type);
+                // change the day's background color just for fun
+                // info.dayEl.style.backgroundColor = 'red';
+            },
+            eventClick: function(info) {
+                if (info.event.extendedProps.user_id == {{g.user.id}} || "admin" === "{{g.user.permission_level}}"){
+                    show_modal(info.event, 'delete')
+                }
+            },
+            select: function(info){
+                // console.log(info)
+                var dur = moment(info.end).diff(moment(info.start), 'm')
+                var required_time_slot = 120 // {{120 if range.distance == '50m' else 120}}
+
+                if (dur == 30){
+                    check_availability(info, "{{request.args.get('range')}}", 'create')
+                } else if (dur < required_time_slot) {
+                    var t = $('.toast')
+                    $(t).find('.card-body').html("You have selected a duration of " + dur + " minutes. <br>A minimum of "+required_time_slot+" minutes is required for a booking.")
+                    $(t).toast({animation: true, delay: 4000}).toast('show');
+                } else {
+                    if (info.view.type === 'timeGridDay'){
+                        check_availability(info, "{{request.args.get('range')}}", 'create')
+                    }
+                }
+            },
+            events: {
+                url: "{{ url_for('booking.get_bookings') }}",
+                extraParams: function() { // a function that returns an object
+                    return {
+                        range: "{{request.args.get('range')}}"
+                    }
+                }
+            },
+            eventRender: function(event, element) {
+                if (event.event.extendedProps.user_id !== {{g.user.id}}) {
+                    event.el.className = event.el.className + ' opacity-3';
+                    // console.log('true', event)
+                }
+            },
+            eventSourceSuccess: function(content, xhr) {
+                //console.log(content);
+            }
+
+        });
+        calendar.render();
+    });
+
+    function show_modal(info, type){
+        let current_datetime = new Date(info.start)
+        let dur = moment(info.end).diff(moment(info.start), 'm')
+        if (dur == 30){
+            info.end = moment(info.start).add(2, 'hours')
+            info.endStr = info.end.format()
+            console.log(info.endStr)
+            dur = moment(info.end).diff(moment(info.start), 'm')
+            $('#min-dur-help').addClass('show')
+        } else {
+            $('#min-dur-help').removeClass('show')
+        }
+
+        let formatted_start_date = moment(info.start).format("Do MMM YYYY")
+        let formatted_start_time = moment(info.start).format("HH:mm")
+        let formatted_end_date = moment(info.end).format("Do MMM YYYY")
+        let formatted_end_time = moment(info.end).format("HH:mm")
+
+        if (info.id != undefined){
+            $('#eventId').val(info.id)
+        } else {
+            $('#eventId').val('')
+        }
+        if (info.extendedProps != undefined) {
+            console.log(info.extendedProps.armory_access)
+            $('input[name=ArmRadOpt][value =' +info.extendedProps.armory_access +']').prop("checked", true)
+        }
+
+        $('#hiddenStart').val(info.startStr)
+        $('#hiddenEnd').val(info.endStr)
+        $('#staticStartDate').val(formatted_start_date)
+        $('#staticStartTime').val(formatted_start_time)
+        $('#staticEndDate').val(formatted_end_date)
+        $('#staticEndTime').val(formatted_end_time)
+        var x = moment.duration(dur, 'days')
+        console.log(x)
+        $('#staticDuration').val(moment(moment.duration(dur, "m").asMilliseconds()).format("H[hr] m[m]"))
+        if (type == 'create') {
+            if (dur < 120) {
+                $('#submit_confirm').val('Cancel').addClass('btn-danger').removeClass('btn-success');
+            } else {
+                $('#Duration_err').collapse('hide');
+                $('#submit_confirm').val('Confirm').addClass('btn-success').removeClass('btn-danger');
+            }
+        } else {
+            $('#submit_confirm').val('Delete').addClass('btn-danger').removeClass('btn-success');
+        }
+        $('#confirm_booking').modal('show');
+        return
+    }
+
+    $('#submit_confirm').click(function(){
+        if ($(this).val() == 'Confirm') {
+            var type = 'new'
+        } else {
+            var type = 'delete'
+        }
+        var start_time = $('#hiddenStart').val()
+        var end_time = $('#hiddenEnd').val()
+        var event_id = $('#eventId').val()
+        var booking_for = $('#booking_for option:selected' ).text()
+        var armoryReq = $('input[name=ArmRadOpt]:checked').val()
+        $.post(
+            '{{request.url}}',
+            {
+                startTime: start_time,
+                endTime: end_time,
+                eventId: event_id,
+                bookingFor: booking_for,
+                armoryAccess: armoryReq,
+                action: type
+            },
+            function(data, status){
+                if (status === 'success'){
+                    $('#confirm_booking').modal('hide');
+                    calendar.refetchEvents();
+                } else {
+                    alert('Event could not be added to the database');
+                }
+            }
+        );
+    });
+
+    function check_availability(e, r, type){
+        $.get({
+            url: "{{url_for('booking.check_availability')}}",
+            data: {
+                start: e.startStr,
+                end: e.endStr,
+                range: r,
+                dataType: 'json'
+            },
+            success: function(data){
+                var response = JSON.parse(data)
+                if (response[0]['bookings'] >= {{range.firing_points}}) {
+                    alert('The {{range.distance}} Range has a maximum of {{range.firing_points}} firing points' )
+                    $('#confirm_booking').modal('hide');
+                } else {
+                    show_modal(e, type);
+                }
+            }
+        })
+    }
+
+</script>
+{% endblock content %}

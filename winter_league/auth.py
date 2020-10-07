@@ -15,7 +15,7 @@ def register():
     feedback = []
     if request.method == 'POST':
         username = request.form['username'].strip().lower()
-        password = request.form['password']
+        # password = request.form['password']
         firstname = request.form['firstname']
         surname = request.form['surname']
         db = get_db()
@@ -24,9 +24,9 @@ def register():
         if not username:
             error = 'Username is required.'
             feedback.append('username')
-        elif not password:
-            error = 'Password is required.'
-            feedback.append('password')
+        # elif not password:
+        #     error = 'Password is required.'
+        #     feedback.append('password')
         elif db.execute(
             'SELECT id FROM user WHERE username = ?', (username,)
         ).fetchone() is not None:
@@ -34,9 +34,13 @@ def register():
             feedback.append('username')
 
         if error is None:
+            # db.execute(
+            #     'INSERT INTO user (first_name, surname, username, password) VALUES (?, ?, ?, ?)',
+            #     (firstname, surname, username, generate_password_hash(password))
+            # )
             db.execute(
-                'INSERT INTO user (first_name, surname, username, password) VALUES (?, ?, ?, ?)',
-                (firstname, surname, username, generate_password_hash(password))
+                'INSERT INTO user (first_name, surname, username, permission_level) VALUES (?, ?, ?, ?)',
+                (firstname, surname, username, 'user')
             )
             db.commit()
             return redirect(url_for('auth.login'))
@@ -50,6 +54,36 @@ def login():
     feedback = []
     if request.method == 'POST':
         username = request.form['username'].strip().lower()
+        # password = request.form['password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM user WHERE username = ?', (username,)
+        ).fetchone()
+
+        if user is None:
+            error = 'Username "{}" is not recognised.'.format(username)
+            feedback.append('username')
+        elif not user['permission_level'] == 'user':
+            return redirect(url_for('.admin_login', u=username))
+        # elif not check_password_hash(user['password'], password):
+        #     error = 'Incorrect password.'
+        #     feedback.append('password')
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id']
+            return redirect(url_for('index'))
+
+        flash(error)
+
+    return render_template('auth/login.html', feedback=feedback)
+
+@bp.route('/login-admin', methods=('GET', 'POST'))
+def admin_login():
+    feedback = []
+    if request.method == 'POST':
+        print(request.form)
+        username = request.args.get('u').strip().lower()
         password = request.form['password']
         db = get_db()
         error = None
@@ -70,7 +104,7 @@ def login():
 
         flash(error)
 
-    return render_template('auth/login.html', feedback=feedback)
+    return render_template('auth/login_admin.html', feedback=feedback)
 
 @bp.route('/reset_password', methods=('GET', 'POST'))
 def reset_user_pw():
