@@ -146,7 +146,8 @@ SELECT
     , competition_name 
     , season
     , ( SELECT COUNT(*) FROM ROUNDS WHERE comp_id = competitions.id ) as rounds
-FROM competitions""",[]
+FROM competitions
+ORDER BY season desc""",[]
     )
     comp_list = []
     #dict['info'] = info
