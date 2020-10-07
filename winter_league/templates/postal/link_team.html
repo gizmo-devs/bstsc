@@ -18,7 +18,7 @@
       <select class="form-control" id="linked_comp" name="linked_comp">
           <option value="" selected disabled>Please Select</option>
             {% for comp in competitions %}
-              <option value="{{comp.id}}">{{comp.competition_name}}</option>
+              <option value="{{comp.id}}">{{comp.competition_name}} - {{comp.season}}</option>
             {% endfor %}
         </select>
     </div>
