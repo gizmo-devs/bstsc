@@ -66,14 +66,14 @@
                     {# {% endif %}#}
 
                     {% if person.scores[curr_round].score_id != None %}
-                    <td class="{{'updateable ' if g.user }}{{r_state}}record" data-round="{{loop.index}}"
+                    <td class="{{'updateable ' if g.user }}{{r_state}}record text-center" data-round="{{loop.index}}"
                         data-name="{{person.name}}"
                         data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}"
                         data-uteam-id="{{team.u_team_id}}">
                         {{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}
                     </td>
                     {% else %}
-                    <td class="{{'updateable ' if g.user }}{{r_state}}record text-muted"
+                    <td class="{{'updateable ' if g.user }}{{r_state}}record text-muted text-center"
                         data-comp-id="{{competition.info.id}}" data-round="{{loop.index}}"
                         data-user-id="{{person.user_id}}" data-name="{{person.name}}" data-shot-id=""
                         data-uteam-id="{{team.u_team_id}}">0
