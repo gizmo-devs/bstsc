@@ -53,9 +53,12 @@
                 {% for person in team.shooters %}
                 <tr>
                     <th scope="row">
-<!--                        <a href="{{url_for('user.user_stats', user_id=person.user_id, comp_id=competition.info.id)}}"-->
-<!--                           class="text-dark" title="Show graph">{{person.name}}</a><br>-->
-                            {{person.name}}<br>
+                    {% if person.scores | sum(attribute='actual') > 0 %}
+                        <a href="{{url_for('user.user_stats', user_id=person.user_id, comp_id=competition.info.id)}}"
+                          class="text-dark" title="Show graph">{{person.name}}</a>
+                    {% else %}
+                        {{person.name}}
+                    {% endif %}
                     </th>
 
                     {% for curr_round in range(num_of_rounds) %}
@@ -72,7 +75,7 @@
                         data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}"
                         data-uteam-id="{{team.u_team_id}}">
                         {% if person.scores[curr_round] in person.scores %}
-                          {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].est }}
+                          {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].estimated }}
                         {% endif %}
                         {#{{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}#}
                     </td>
