@@ -71,7 +71,10 @@
                         data-name="{{person.name}}"
                         data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}"
                         data-uteam-id="{{team.u_team_id}}">
-                        {{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}
+                        {% if person.scores[curr_round] in person.scores %}
+                          {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].estimated }}
+                        {% endif %}
+                        {#{{ person.scores[curr_round].actual if person.scores[curr_round] in person.scores else '' }}#}
                     </td>
                     {% else %}
                     <td class="{{'updateable ' if g.user }}{{r_state}}record text-muted text-center"
