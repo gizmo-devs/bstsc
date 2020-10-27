@@ -70,7 +70,7 @@
                     {# {% endif %}#}
 
                     {% if person.scores[curr_round].score_id != None %}
-                    <td class="{{'updateable ' if g.user }}{{r_state}}record text-center " data-round="{{loop.index}}"
+                    <td class="{{'updateable ' if g.user }}{{r_state}}record text-center" data-round="{{loop.index}}"
                         data-name="{{person.name}}"
                         data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}"
                         data-uteam-id="{{team.u_team_id}}">
@@ -78,7 +78,7 @@
                           {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].est }}
                           {% if person.scores[curr_round].est > 0 and person.scores[curr_round].actual > 0 %}
                             {% if person.scores[curr_round].est != person.scores[curr_round].actual %}
-                              <span class="score_desc"></span>
+                              &#183;
                             {% endif %}
                           {% endif %}
                         {% endif %}
