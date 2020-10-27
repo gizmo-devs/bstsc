@@ -75,9 +75,9 @@
                         data-shot-id="{{person.scores[curr_round].score_id if person.scores[curr_round]}}"
                         data-uteam-id="{{team.u_team_id}}">
                         {% if person.scores[curr_round] in person.scores %}
-                          {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].estimated }}
-                          {% if person.scores[curr_round].estimated > 0 and person.scores[curr_round].actual > 0 %}
-                            {% if person.scores[curr_round].estimated != person.scores[curr_round].actual %}
+                          {{ person.scores[curr_round].actual if person.scores[curr_round].actual > 0 else person.scores[curr_round].est }}
+                          {% if person.scores[curr_round].est > 0 and person.scores[curr_round].actual > 0 %}
+                            {% if person.scores[curr_round].est != person.scores[curr_round].actual %}
                               &#183;
                             {% endif %}
                           {% endif %}
