@@ -10135,4 +10135,9 @@ table.results th:first-child, table.results td:first-child
    background-color: rgba(255, 255, 0, 0.1) !important;
 }
 
+.score_desc{
+  content: "\00B7";
+  font-size: 3em;
+}
+
 /*# sourceMappingURL=bootstrap.css.map */
