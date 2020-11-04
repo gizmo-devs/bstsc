@@ -87,14 +87,7 @@
   {% block content %}{% endblock %}
 </section>
 
-<footer class="footer mt-2">
-  <div class="container">
-    <div class="d-flex justify-content-between">
-      <span class="text-muted">Created By Craig</span>
-      <span class="text-muted">Version 1.1.11</span>
-    </div>
-  </div>
-</footer>
+{% include 'footer.html'%}
 
 {% if get_flashed_messages() %}
 <script>
