@@ -56,12 +56,26 @@
     //var rounds = 0
     //var graph_data = JSON.parse({{graph_data}})
     $(document).ready(function(){
-                var rounds = {{graph_data.rounds}};
-                var results = {{graph_data.results_arr}};
-                var avg = {{graph_data.average}};
-                console.log(avg);
+                var rounds = {{graph_data.rounds if graph_data.rounds is not none else "null"}};
+                var results = {{graph_data.results_arr if graph_data.results_arr is not none else "null"}};
+                var avg = {{graph_data.average if graph_data.average is not none else "null"}};
+                console.log(avg, rounds);
 
                 var ctx = document.getElementById("myChart");
+
+                if (rounds == null) {
+                    $(ctx).parent().html(`
+                    <div class="card">
+                      <h5 class="card-header">No results</h5>
+                      <div class="card-body">
+                        <h5 class="card-title">The competition selected returned no results</h5>
+                        <p class="card-text">Select a different competition to view statistics.</p>
+
+                      </div>
+                    </div>`)
+                    ctx.remove();
+                } else {
+
                 var myChart = new Chart(ctx, {
                    // height: 380,
                    type: 'line',
@@ -114,6 +128,7 @@
                       }
                     }
                   });
+                }
     });
 
     </script>
