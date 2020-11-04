@@ -121,7 +121,7 @@ def user_comp_stats(user_id, comp_id):
             scores
             JOIN user 
                 ON user.id = scores.user_id      
-            WHERE user_id=? AND competition_id=?
+            WHERE user_id=? AND competition_id=? AND result > 0
         order by round
         """, (user_id, comp_id))
     results = []
