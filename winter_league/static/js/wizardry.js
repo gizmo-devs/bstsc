@@ -18,6 +18,7 @@ $(document).ready(function(){
                 $('#round').val(data.round);
                 $('#actual').val(data.result);
                 $('#date_shot').val(date_to_yyyy_mm_dd(data.completed));
+                $('#submit_btn').html('Update');
             });
         } else {
             var u_id = $(this).attr('data-user-id');
@@ -32,6 +33,7 @@ $(document).ready(function(){
             $('#estimated').val(0);
             $('#actual').val(0);
             $('#round').val(round);
+            $('#submit_btn').html('Add score');
             //$('#date_shot').val();
             //$('#shooter_name').val(shooter_name);
         }
