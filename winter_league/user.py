@@ -121,7 +121,7 @@ def user_comp_stats(user_id, comp_id):
             scores
             JOIN user 
                 ON user.id = scores.user_id      
-            WHERE user_id=? AND competition_id=?
+            WHERE user_id=? AND competition_id=? AND result > 0
         order by round
         """, (user_id, comp_id))
     results = []
@@ -129,9 +129,9 @@ def user_comp_stats(user_id, comp_id):
         results += [val['result']]
     data = {
         'comp_id': comp_id,
-        'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'],
-        'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)],
-        'results_arr': results,
-        'average': [(sum(results) / len(results)) for avg in range(len(data_set))]
+        'shooter': data_set[0]['first_name'] + " " + data_set[0]['surname'] if data_set else None,
+        'rounds': [r for r, idx in enumerate(range(len(data_set)), start=1)] if data_set else None,
+        'results_arr': results if data_set else None,
+        'average': [(sum(results) / len(results)) for avg in range(len(data_set))] if data_set else None
     }
     return data

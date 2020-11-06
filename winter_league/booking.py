@@ -19,6 +19,19 @@ def index():
     return render_template('booking/index.html', ranges=query_db("SELECT * FROM ranges"))
 
 
+@bp.route('/manage-ranges', methods=['GET', 'POST'])
+@login_required
+def manage_ranges():
+    if request.method == "POST":
+        print(request.form)
+        db = get_db()
+        sql = "UPDATE ranges SET firing_points=?, active=?, current_msg=? WHERE id=?"
+        params = [request.form.get('r_fp'), request.form.get('r_active'), request.form.get('r_msg'), request.form.get('r_id')]
+        db.execute(sql, params)
+        db.commit()
+        flash("Request sent to database")
+    return render_template('booking/manage-ranges.html', ranges=query_db("SELECT * FROM ranges"))
+
 
 @bp.route('/calendar', methods=["POST", "GET"])
 @login_required

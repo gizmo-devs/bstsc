@@ -101,20 +101,25 @@
 --======================================
 -- START OF UPDATE 005
 --======================================
-ALTER TABLE booking RENAME TO _booking_old;
+--ALTER TABLE booking RENAME TO _booking_old;
+--
+--CREATE TABLE booking (
+--  id INTEGER PRIMARY KEY AUTOINCREMENT,
+--  range TEXT NOT NULL,
+--  title TEXT NOT NULL,
+--  user_id INTEGER NOT NULL,
+--  start_time TEXT NOT NULL,
+--  end_time TEXT NOT NULL,
+--  allDay BOOLEAN NOT NULL,
+--  armory_access BOOLEAN NOT NULL
+--);
+--
+----DROP TABLE bookingTemp;
+--
+--INSERT INTO booking (range, title, user_id, start_time, end_time, allDay, armory_access)
+--    SELECT range, title, user_id, start_time, end_time, allDay, armory_access FROM _booking_old;
 
-CREATE TABLE booking (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  range TEXT NOT NULL,
-  title TEXT NOT NULL,
-  user_id INTEGER NOT NULL,
-  start_time TEXT NOT NULL,
-  end_time TEXT NOT NULL,
-  allDay BOOLEAN NOT NULL,
-  armory_access BOOLEAN NOT NULL
-);
-
---DROP TABLE bookingTemp;
-
-INSERT INTO booking (range, title, user_id, start_time, end_time, allDay, armory_access)
-    SELECT range, title, user_id, start_time, end_time, allDay, armory_access FROM _booking_old;
+--======================================
+-- START OF UPDATE 006
+--======================================
+ALTER TABLE ranges ADD COLUMN current_msg TEXT;
