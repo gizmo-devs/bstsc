@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
+<div class="d-flex align-items-center">
 <h1>{% block title %}Range Booking{% endblock %}</h1>
-{% if g.user.permission_level == "admin" %}
 
+{% if g.user.permission_level == "admin" %}
+<a href="{{url_for('booking.manage_ranges')}}" class="btn btn-primary ml-auto">Manage</a>
 {% endif %}
 <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
-
+</div>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +23,9 @@
     <div class="card">
       <div class="card-body">
         <h3 class="card-title">{{r.name}} ({{r.distance}})</h3>
+        {% if r.current_msg %}
+        <p>{{r.current_msg}}</p>
+        {% endif %}
         <a href="{{url_for('booking.planner', range=r.distance )}}" class="btn btn-primary {{'disabled' if not r.active}}" role="button" aria-disabled="true">Book a firing point</a>
       </div>
     </div>
