@@ -1,0 +1,75 @@
+<div class="modal fade" id="confirm_booking" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Please Confirm</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please confirm your booking:</p>
+          <form method="post">
+              <div class="alert alert-warning collapse" id="min-dur-help">
+                  The minimum time of 2 hours was not selected. Your booking has been updated for a 2 hour duration.
+              </div>
+              <div class="form-group row">
+                <label for="staticStartTime" class="col-2 col-form-label">Start:</label>
+                <div class="col-5">
+                    <input type="hidden" readonly class="form-control-plaintext" id="hiddenStart" value="">
+                    <input type="hidden" readonly class="form-control-plaintext" id="eventId" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticStartDate" value="">
+                </div>
+                  <div class="col-4">
+                      <input type="text" readonly class="form-control-plaintext" id="staticStartTime" value="">
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="staticStartTime" class="col-2 col-form-label">End:</label>
+                <div class="col-5">
+                    <input type="hidden" readonly class="form-control-plaintext" id="hiddenEnd" value="">
+                    <input type="text" readonly class="form-control-plaintext" id="staticEndDate" value="">
+                </div>
+                  <div class="col-4">
+                      <input type="text" readonly class="form-control-plaintext" id="staticEndTime" value="">
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="staticDuration" class="col-2 col-form-label">Duration:</label>
+                <div class="col-10">
+                    <input type="text" readonly class="form-control-plaintext" id="staticDuration" value="">
+                </div>
+              </div>
+              <div class="form-group row {{'d-none' if g.user.permission_level != 'admin'}}">
+              <label for="booking_for" class="col-3 col-form-label">Booking For:</label>
+                  <div class="col-9">
+                      <select name="booking_for" id="booking_for" class="custom-select">
+                            {% for user in users %}
+                                <option value="{{user.id}}" {{'selected' if user.id == g.user['id']}}>{{user.first_name}} {{user.surname}}</option>
+                            {% endfor %}
+                      </select>
+                  </div>
+              </div>
+              <div class="form-group row d-none">
+                <label for="staticDuration" class="col-sm-5 col-form-label">Access to the Armory:</label>
+                <div class="col-sm-7">
+                    <div class="btn-group btn-block" data-toggle="buttons">
+                      <label class="btn btn-primary">
+                        <input type="radio" name="ArmRadOpt" id="option1" value="1"> Yes
+                      </label>
+                      <label class="btn btn-primary">
+                        <input type="radio" name="ArmRadOpt" id="option2" value="0"> No
+                      </label>
+                    </div>
+                </div>
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+          <input class="btn btn-success btn-block" id="submit_confirm" type="submit" value="Confirm">
+<!--        <button type="button" class="btn btn-primary">Save changes</button>-->
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

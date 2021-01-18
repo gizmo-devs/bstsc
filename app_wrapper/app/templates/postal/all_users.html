@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Users{% endblock %}</h1>
+  {% if g.user.permission_level == "admin" %}
+<!--    <a class="action" href="{{ url_for('competition.comp_create') }}">New Competition</a>-->
+  {% endif %}
+<!--  <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>-->
+<!--  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>-->
+{% endblock %}
+
+{% block content %}
+{% for table in tables %}
+    {{ table|safe }}
+{% endfor %}
+{% endblock %}
