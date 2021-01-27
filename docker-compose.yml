@@ -6,6 +6,6 @@ services:
     volumes:
       - ./instance/:/app/instance/
     environment:
-      VIRTUAL_HOST: bsrc.craigattwood.co.uk
-      LETSENCRYPT_HOST: bsrc.craigattwood.co.uk
+      - VIRTUAL_HOST=bsrc.craigattwood.co.uk
+      - LETSENCRYPT_HOST=bsrc.craigattwood.co.uk
     network_mode: bridge
