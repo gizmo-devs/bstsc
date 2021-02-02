@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  webapp:
+    build: .
+    volumes:
+      - ./instance/:/app/instance/
+    environment:
+      VIRTUAL_HOST: bsrc.craigattwood.co.uk
+      LETSENCRYPT_HOST: bsrc.craigattwood.co.uk
+    network_mode: bridge

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="d-flex align-items-center">
+<h1>{% block title %}Range Booking{% endblock %}</h1>
+
+{% if g.user.permission_level == "admin" %}
+<a href="{{url_for('booking.manage_ranges')}}" class="btn btn-primary ml-auto">Manage</a>
+{% endif %}
+<script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger" role="alert">
+  To allow the range to open, we need to adhere to the guidelines put in place by the Committee.
+  <a data-toggle="modal" data-target=".bd-example-modal-lg" class="alert-link">View the COVID-19 Guidelines</a>.
+</div>
+<div class="row">
+  {% for r in ranges %}
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">{{r.name}} ({{r.distance}})</h3>
+        {% if r.current_msg %}
+        <p>{{r.current_msg}}</p>
+        {% endif %}
+        <a href="{{url_for('booking.planner', range=r.distance )}}" class="btn btn-primary {{'disabled' if not r.active}}" role="button" aria-disabled="true">Book a firing point</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">COVID-19 Guidelines</h3>
+      </div>
+      <div class="modal-body">
+      <h3>Budleigh Salterton Outdoor Range</h3>
+      <p>We are pleased to announce that our outdoor range will reopen on Saturday 20 June for all members and invited
+        Pinhoe Rifle Club members. To provide a safe environment for all shooters we have implemented the following
+        C-19 virus guidelines.</p>
+      <p><strong>Note:</strong> You must bring your own sanitiser to clean the field lock and outdoor range lock before
+        and after use. Do not remove the cleaning materials provided in the clubhouse.</p>
+      <h4>Range Booking</h4>
+      <p>The range can be booked in two-hour slots. To comply with social distancing rules, no more than three shooters
+        in any detail but slots can be shared by up to six shooters.</p>
+      <p>Contact Dave Lemon on 07760 242 900 to check availability and book your slot.</p>
+      <h4>BSRC Members</h4>
+      <p>Paper and spray cleaner are provided for use in the clubroom.</p>
+      <p>When collecting your shooting gear from the club please clean any door handles and work surfaces that you’ve
+        used. Clean the external door handle after locking the front door and take the used paper with you.</p>
+      <p>When returning to the club please clean the target frame before placing it in the lobby. When leaving the
+      club, clean any door handles and work surfaces that you’ve used. Clean the external door handle after
+        locking the front door and take the used paper with you.</p>
+      <h4>Pinhoe Rifle Club Members</h4>
+      <p>Paper and spray cleaner are provided for use in the lobby.</p>
+      <p>When collecting a target frame from the club lobby please clean the external door handle after locking the
+        front door and take the used paper with you.</p>
+      <p>When returning to the club please clean the target frame before placing it in the lobby. Clean the external
+        door handle after locking the front door and take the used paper with you.</p>
+      <h3>Parking</h3>
+      <p>Clean the lock before opening the gate.</p>
+      <p>Make sure you park on the left, directly behind the bridge to allow the farmer clear access to both fields.
+        Do not park outside the field in front of the farmer’s gate.</p>
+      <p>Place a target or note in your car window so that the farmer knows you are using the range.</p>
+      <p>Lock the field gate while you’re on the range to prevent the public from parking in the field.</p>
+      <p>When you’ve finished shooting make sure the field gate is locked and cleaned when you leave.</p>
+      <p>Range gate lock code: <i>1906</i></p>
+      <p>We hope you enjoy your shooting and respect the guidelines to ensure the safety of other shooters.</p>
+      <p>Thank you,<br/>
+      BSRC Committee</p>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
